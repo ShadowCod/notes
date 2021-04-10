@@ -122,20 +122,27 @@
    git remote add 别名 项目地址	eg:git remote add origin https://github.com/TFPanzer
    ```
 
-3. 将本地项目推送到远程仓库中
+3. 生成密钥
+
+   ```
+   ssh-keygen
+   //并将.pub中的内容复制到github账户中
+   ```
+
+4. 将本地项目推送到远程仓库中
 
    ```
    git push -u 别名 分支名	eg:git push -u origin master
    ```
 
-4. 将远程仓库中的项目克隆到本地
+5. 将远程仓库中的项目克隆到本地
 
    ```
    git clone 项目地址	eg:git clone https://github.com/TFPanzer
    注意：clone下来的项目使用git branch查看分支时只会显示master但是实际上可以直接切换到其他分支
    ```
 
-5. 将远程仓库中项目的改动拉取到本地
+6. 将远程仓库中项目的改动拉取到本地
 
    ```
    git pull 别名 分支名称
