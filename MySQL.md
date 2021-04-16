@@ -1,4 +1,4 @@
-### MySQL
+MySQL
 
 **第一部分：基础**
 
@@ -251,95 +251,93 @@ select salary as 'out put' from employess;
   
   select replace("张无忌爱上了周芷若",'周芷若','赵敏');
   
-/*
-  数学函数：
-  	round：四舍五入,支持负数
-  	ceil:向上取整,返回大于等于参数的最小整数
-  	floor:向下取整，返回小于等于参数的最大整数
-  	truncate:截断
-  	mod:取模
-  */
-  select round(1.65);
-  select round(1.3456,2);---->四舍五入且保留小数后俩位
-  
-  select ceil(1.2);
-  
-  select floor(-1.2);
-  
-  select truncate(1.69999,1);----->小数后保留1位
-  
-  select mod(-10,3);
-  
   /*
-  日期函数：
-  	now():返回当前系统日期+时间
-  	curdate():返回当前系统日期，不包含时间
-  	curtime():返回当前时间，不包含日期
-  	year、month、day、hour、minute、second:获取年份、月份、日、时、分、秒
-  	str_to_date:将日期格式的字符转换成指定格式的日期
-  	date_format:将日期转换成字符
-  */
-  select year(now());
-  select year('1995-8-29');
+    数学函数：
+    	round：四舍五入,支持负数
+    	ceil:向上取整,返回大于等于参数的最小整数
+    	floor:向下取整，返回小于等于参数的最大整数
+    	truncate:截断
+    	mod:取模
+    */
+    select round(1.65);
+    select round(1.3456,2);---->四舍五入且保留小数后俩位
   
-  select month(now());
-  select monthname(now());
+    select ceil(1.2);
   
-  select day(now())
+    select floor(-1.2);
   
-  select str_to_date('1995-8-20','%Y-%c-%d');
+    select truncate(1.69999,1);----->小数后保留1位
   
-  select * from emp where hiredate = str_to_date('4-3 1995','%c-%d %Y');
+    select mod(-10,3);
   
-  select date_format(now(),'%Y年%m月%d日');
+    /*
+    日期函数：
+    	now():返回当前系统日期+时间
+    	curdate():返回当前系统日期，不包含时间
+    	curtime():返回当前时间，不包含日期
+    	year、month、day、hour、minute、second:获取年份、月份、日、时、分、秒
+    	str_to_date:将日期格式的字符转换成指定格式的日期
+    	date_format:将日期转换成字符
+    */
+    select year(now());
+    select year('1995-8-29');
   
-  select date_format(hiredate,'%Y年/%m月/%d日') from emp where com_pct is not null;
+    select month(now());
+    select monthname(now());
   
-  /*
-  其他函数
-  	version:版本号
-  	database:查看当前数据库
-  	user：查看当前用户
-  */
+    select day(now())
   
+    select str_to_date('1995-8-20','%Y-%c-%d');
   
-  /*
-  流程控制函数
-  	if函数：if else的效果 类似三元运算符
-  	case:流程控制结构
-  		①case 要判断的字段或者表达式
-  		when 常量1 then 要显示的值或者语句
-  		when 常量2 then 要显示的值或者语句
-  		else 默认指定的值
-  		end
-  		注意：then后面是值不需要;，但是是语句就需要;
-  		②case
-  		when 条件1 then 要显示的值
-  		when 条件2 then 要显示的值
-  		else 默认值
-  		end
-  */
-  select if(10>5,'大','小');
+    select * from emp where hiredate = str_to_date('4-3 1995','%c-%d %Y');
   
-  select salary 原始工资,
-  case dep_id
-  when 30 then salary*1.1
-  when 40 then salary*1.2
-  when 50 then salary*1.3
-  else salary
-  end as 新工资
-  from emp;
+    select date_format(now(),'%Y年%m月%d日');
+  
+    select date_format(hiredate,'%Y年/%m月/%d日') from emp where com_pct is not null;
+  
+    /*
+    其他函数
+    	version:版本号
+    	database:查看当前数据库
+    	user：查看当前用户
+    */
   
   
-  select salary 原始工资,
-  case 
-  when salary>20000 then 'A'
-  when salary>15000 then 'B'
-  when salary>10000 then 'C'
-  else 'D'
-  end as 级别
-  from emp;
+    /*
+    流程控制函数
+    	if函数：if else的效果 类似三元运算符
+    	case:流程控制结构
+    		①case 要判断的字段或者表达式
+    		when 常量1 then 要显示的值或者语句
+    		when 常量2 then 要显示的值或者语句
+    		else 默认指定的值
+    		end
+    		注意：then后面是值不需要;，但是是语句就需要;
+    		②case
+    		when 条件1 then 要显示的值
+    		when 条件2 then 要显示的值
+    		else 默认值
+    		end
+    */
+    select if(10>5,'大','小');
+  
+    select salary 原始工资,
+    case dep_id
+    when 30 then salary*1.1
+    when 40 then salary*1.2
+    when 50 then salary*1.3
+    else salary
+    end as 新工资
+    from emp;
+  
+  
+    select salary 原始工资,
+    case 
+    when salary>20000 then 'A'
+    when salary>15000 then 'B'
+    when salary>10000 then 'C'
+    else 'D'
+    end as 级别
+    from emp;
   ```
-  
-  
 

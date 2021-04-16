@@ -58,7 +58,7 @@
       ```
       //配置文件内容
       systemLog:
-      	destination:dile
+      	destination:file
       	path: c:\data\log\mongod.log
       storage:
       	daPath: c:\data\db
