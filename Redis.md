@@ -179,5 +179,64 @@
   type 键名
   ```
 
+
+- redis中的string类型
+
+  string类型的使用场景：value除了是字符串还可以是数字
+
+  - 计数器
+  - 统计多单位的数量
+  - 对象缓存存储
+
+  ```bash
+  #查看key是否存在
+  exists 键名
+  #向字符串中追加元素，如果当前key不存在就相当于set key
+  append 键名 追加的值
+  #获取key中存储的值
+  get 键名
+  
+  #获取字符串长度
+  strlen 键名
+  #自动加一，类似i++
+  incr 键名
+  #自动减一，类似i--
+  decr 键名
+  #步长，自定义每次加多少，类似i+=
+  incrby 键名 每次增加数量
+  #自定义每次件多少，类似i-=
+  decrby 键名 每次减少数量
+  #字符串范围(截取字符串)[开始，结束]
+  getrange 键名 开始位置 结束位置   eg.set key1 "hello,golang";  getrange key1 0 3;-->"hell"
+  #查看全部字符串
+  getrange 键名 0 -1
+  #替换！
+  setrange 键名 开始位置 替换字符  eg.set key2 "abcdef"; setrange key2 1 xx;--->"axxdef"
+  
+  #setex(set with expire),设置过期时间
+  setex key3 30 "hello"
+  #setnx(set if not exist)，不存在再设置   在分布式锁中常使用
+  setnx key4 "redis";  #如果key4不存在，创建key4，如果存在就创建失败
+  #批量设置值
+  mset k1 v1 k2 v2
+  #批量获取值
+  mget k1 k2
+  #不存在设置，存在设置失败(原子性操作，如果有一个不能创建就全部失败)
+  msetnx k1 v1 k2 v2
+  
+  #设置对象
+  set user:1 {name:zhangsan,age:3};#---->设置一个user1对象，值为json字符串来保存一个对象
+  #进阶写法(这里的key是一个巧妙的设计：user:{id}:{filed},如此设计在redis中是可以的)
+  mset user:1:name zhangsan user:1:age:12;
+  #获取值
+  mget user:1:name user:1:age
+  
+  #组合命令（先get再set）:显示原来的值，再将值进行修改
+  getset db "redis";----->nil
+  get db;----->redis
+  getset db "MongoDB";----->redis
+  get db;----->MongoDB
+  ```
+
   
 
