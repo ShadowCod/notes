@@ -238,5 +238,75 @@
   get db;----->MongoDB
   ```
 
-  
 
+- redis中的list类型
+
+  基础数据类型：列表
+
+  在redis里面可以用list实现：栈、队列、阻塞队列
+
+  所有的list命令都是l开头的
+
+  **注意**：实际上list类型是一个链表
+
+  ```bash
+  #向list中存值，插入到列表的头部(左进)
+  lpush list one
+  lpush list two
+  lpush list three
+  #获取list中的值
+  lrange list 0 -1;----->获取list中的全部值：three、two、one
+  #获取list中指定的值
+  lrange list 0 1;----->three two
+  
+  #向list中存值，插入到列表的尾部（右进）
+  rpush list four
+  lrange list 0 -1;----->three、two、one、four
+  #移除list中的值，移除头部，一次只会移除一个（左|第一个）
+  lpop list
+  #移除list中的值，移除尾部，一次只会移除一个（右|最后一个）
+  rpop list
+  lrange list 0 -1;----->two one
+  #获取指定索引的值(索引从0开始)
+  lindex list 1;----->one
+  
+  #获取list的长度
+  llen list;----->2
+  
+  #移除list中指定个数的指定值（精确匹配）
+  lpush list three
+  lrange list 0 -1;----->three two one 
+  rpush list three;
+  lrange list 0 -1;----->three two one three
+  
+  lrem list 1 one;---->three two three   #移除list中一个one
+  lrem list 2 three;---->two  #移除list中2个three
+  
+  #截取一部分list中的值(通过下标)
+  rpush list1 'hello1'
+  rpush list1 'hello2'
+  rpush list1 'hello3'
+  lrange list1 0 -1;----->hello1 hello2 hello3
+  trim list 0 1
+  lrange list1 0 -1;----->hello1 hello2
+  
+  #移除list中的最后一个元素移动的另外一个列表中
+  rpoplpush list1 list2
+  lrange list2 0 -1;----->hello2
+  lrange list1 0 -1;----->hello1
+  
+  #判断list是否存在
+  exists mylist;  #判断mylist这个列表是否存在
+  lpush mylist v1
+  #将列表中指定位置的元素替换掉(如果指定的位置本来没有值会报错)|更新操作
+  lset mylist 0 item
+  lrange mylist 0 0;----->item
+  
+  #向list中的前面或者后面插入指定的值
+  linsert mylist before item other;#在mylist的item前面添加一个other
+  lrange mylist 0 -1;----->other item 
+  linsert mylist after other v2;#在mylist中的other后面添加一个v2
+  lrange mylist 0 -1;----->other v2 item 
+  ```
+
+  
