@@ -309,4 +309,40 @@
   lrange mylist 0 -1;----->other v2 item 
   ```
 
+
+- redis中的set类型
+
+  set中的值不能重复,且是无序的
+
+  set类型的命令开头都是s
+
+  ```bash
+  #向set类型中存入值
+  sadd myset "hello"
+  #查看set类型中的值
+  smembers myset
+  #查询set类型中是否存在指定值
+  sismember myset 'hello'
+  
+  #获取set类型拥有值的数量
+  scard myset
+  #移除set类型中的某个值
+  srem myset 'hello'
+  
+  #随机抽取set类型中的一个成员
+  srandmember myset
+  #随机抽取set类型中的二个成员
+  srandmember myset 2
+  
+  #随机弹出一个成员（随机删除）
+  spop myset
+  #将一个指定的成员移动到另外一个set中
+  smove myset myset2 "hello"
+  
+  #数字集合类
+  #	-差集:sdiff set1 set2
+  #	-交集:sinter set1 set2
+  #	-并集:sunion set1 set2
+  ```
+
   
