@@ -346,3 +346,49 @@
   ```
 
   
+
+- redis中的hash类型
+
+  想象成map集合，key-<key,value>,key-map,值是一个map集合,和string类型没太大的区别，只是值变成了map，建议和string类型对比学习
+
+  hash类型的命令都是以h开头的
+
+  应用：①存储变更数据（用户信息） ②更适合对象的存储 ③string更适合字符串的存储
+
+  ```bash
+  #向hash类型key中添加值
+  hset myhash filed1 hello
+  #获取hash类型key中存储的值
+  hget myhash filed1
+  #同时向hash类型key中添加多个值
+  hmset myhash filed1 golang filed2 world
+  #同时获取hash类型中key的多个值
+  hmget myhash filed1 filed2
+  #获取hash某一个key中的所有值
+  hgetall myhash;----->filed1 golang filed2 world
+  
+  #删除hash类型key中指定字段，对应的值也会删除
+  hdel myhash filed1
+  #获取hash类型key的长度(一共有多少个键值对)
+  hlen myhash
+  #判断hash类型key中包含某个字段
+  hexists myhash filed1
+  
+  #只获取hash类型中key中的所有字段
+  hkeys myhash
+  #只获取hash类型中key中的所有值
+  hvals myhash
+  
+  #hash类型key指定自增hincr、hincrby
+  hset test fild 1
+  hincrby test fild 2
+  
+  #hash类型key指定自减hdecr、hdecrby
+  hdecrby test fild 1
+  
+  #hsetnx向hash类型的key中存入值，存在则失败
+  hsetnx test fild1 5
+  ```
+
+  
+
