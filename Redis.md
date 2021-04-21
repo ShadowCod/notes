@@ -238,5 +238,157 @@
   get db;----->MongoDB
   ```
 
+
+- redis中的list类型
+
+  基础数据类型：列表
+
+  在redis里面可以用list实现：栈、队列、阻塞队列
+
+  所有的list命令都是l开头的
+
+  **注意**：实际上list类型是一个链表
+
+  ```bash
+  #向list中存值，插入到列表的头部(左进)
+  lpush list one
+  lpush list two
+  lpush list three
+  #获取list中的值
+  lrange list 0 -1;----->获取list中的全部值：three、two、one
+  #获取list中指定的值
+  lrange list 0 1;----->three two
+  
+  #向list中存值，插入到列表的尾部（右进）
+  rpush list four
+  lrange list 0 -1;----->three、two、one、four
+  #移除list中的值，移除头部，一次只会移除一个（左|第一个）
+  lpop list
+  #移除list中的值，移除尾部，一次只会移除一个（右|最后一个）
+  rpop list
+  lrange list 0 -1;----->two one
+  #获取指定索引的值(索引从0开始)
+  lindex list 1;----->one
+  
+  #获取list的长度
+  llen list;----->2
+  
+  #移除list中指定个数的指定值（精确匹配）
+  lpush list three
+  lrange list 0 -1;----->three two one 
+  rpush list three;
+  lrange list 0 -1;----->three two one three
+  
+  lrem list 1 one;---->three two three   #移除list中一个one
+  lrem list 2 three;---->two  #移除list中2个three
+  
+  #截取一部分list中的值(通过下标)
+  rpush list1 'hello1'
+  rpush list1 'hello2'
+  rpush list1 'hello3'
+  lrange list1 0 -1;----->hello1 hello2 hello3
+  trim list 0 1
+  lrange list1 0 -1;----->hello1 hello2
+  
+  #移除list中的最后一个元素移动的另外一个列表中
+  rpoplpush list1 list2
+  lrange list2 0 -1;----->hello2
+  lrange list1 0 -1;----->hello1
+  
+  #判断list是否存在
+  exists mylist;  #判断mylist这个列表是否存在
+  lpush mylist v1
+  #将列表中指定位置的元素替换掉(如果指定的位置本来没有值会报错)|更新操作
+  lset mylist 0 item
+  lrange mylist 0 0;----->item
+  
+  #向list中的前面或者后面插入指定的值
+  linsert mylist before item other;#在mylist的item前面添加一个other
+  lrange mylist 0 -1;----->other item 
+  linsert mylist after other v2;#在mylist中的other后面添加一个v2
+  lrange mylist 0 -1;----->other v2 item 
+  ```
+
+
+- redis中的set类型
+
+  set中的值不能重复,且是无序的
+
+  set类型的命令开头都是s
+
+  ```bash
+  #向set类型中存入值
+  sadd myset "hello"
+  #查看set类型中的值
+  smembers myset
+  #查询set类型中是否存在指定值
+  sismember myset 'hello'
+  
+  #获取set类型拥有值的数量
+  scard myset
+  #移除set类型中的某个值
+  srem myset 'hello'
+  
+  #随机抽取set类型中的一个成员
+  srandmember myset
+  #随机抽取set类型中的二个成员
+  srandmember myset 2
+  
+  #随机弹出一个成员（随机删除）
+  spop myset
+  #将一个指定的成员移动到另外一个set中
+  smove myset myset2 "hello"
+  
+  #数字集合类
+  #	-差集:sdiff set1 set2
+  #	-交集:sinter set1 set2
+  #	-并集:sunion set1 set2
+  ```
+
+  
+
+- redis中的hash类型
+
+  想象成map集合，key-<key,value>,key-map,值是一个map集合,和string类型没太大的区别，只是值变成了map，建议和string类型对比学习
+
+  hash类型的命令都是以h开头的
+
+  应用：①存储变更数据（用户信息） ②更适合对象的存储 ③string更适合字符串的存储
+
+  ```bash
+  #向hash类型key中添加值
+  hset myhash filed1 hello
+  #获取hash类型key中存储的值
+  hget myhash filed1
+  #同时向hash类型key中添加多个值
+  hmset myhash filed1 golang filed2 world
+  #同时获取hash类型中key的多个值
+  hmget myhash filed1 filed2
+  #获取hash某一个key中的所有值
+  hgetall myhash;----->filed1 golang filed2 world
+  
+  #删除hash类型key中指定字段，对应的值也会删除
+  hdel myhash filed1
+  #获取hash类型key的长度(一共有多少个键值对)
+  hlen myhash
+  #判断hash类型key中包含某个字段
+  hexists myhash filed1
+  
+  #只获取hash类型中key中的所有字段
+  hkeys myhash
+  #只获取hash类型中key中的所有值
+  hvals myhash
+  
+  #hash类型key指定自增hincr、hincrby
+  hset test fild 1
+  hincrby test fild 2
+  
+  #hash类型key指定自减hdecr、hdecrby
+  hdecrby test fild 1
+  
+  #hsetnx向hash类型的key中存入值，存在则失败
+  hsetnx test fild1 5
+  ```
+
   
 
