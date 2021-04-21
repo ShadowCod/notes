@@ -563,5 +563,33 @@ select salary as 'out put' from employess;
   
   --查询员工的名字和领导的名字（自连接）--
   select e.last_name,m.last_name from emp e join emp m on e.manager_id=m.emp_id;
+  
+  /*
+  外连接
+  	应用场景：用于查询一个表中有，一个表中没有的场景
+  	特点：
+  	①外连接的查询结果为主表中的所有记录，如果有匹配的就显示匹配的值，没有就显示null
+  	外连接查询的结构=内连接查询结果+主表中有但是从表中没有的记录
+  	②左外连接，left join左边的表是主表	右外连接，right join右边的表是主表
+  	③左外和右外交换两个表的顺序可以实现同样的效果
+  */
+  --查询男朋友不在男神表的女神名(左外)--
+  select b.name from beauty b left outer join boys n on b.b_id=n.id where n.id is null;
+  
+  
+  --查询那个部门没有员工--
+  select dep_id from dep d left outer join emp e on e.dep_id=d.id where e.id is null;
+  --使用右外连接(主表不变)--
+  select dep_id from emp e right outer join dep d on e.dep_id=d.id where e.id is null;
+  
+  /*
+  全外连接=内连接结果+表一中有但表二中没有的+表2中有但表一中没有的	
+  */
+  select b.*,bo.* from beauty b full outer join boys bo on b.b_id=bo.id;
+  /*
+  交叉连接
+  	使用99语法实现笛卡尔乘积
+  */
+  select b.*,bo.* from beauty b cross join boys bo;
   ```
 
