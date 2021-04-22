@@ -445,151 +445,229 @@ select salary as 'out put' from employess;
   --查询员工最高工资和最低工资的差距，使用diffrence--
   select max(salary),min(salary) diffrence from emp 
   
-  /*
-  链接查询    多表查询
-  	笛卡尔乘积现象：表1有m行，表2有n行
-  	如何发生的：没有有效的链接条件
-  	如何避免：添加有效的链接条件
-  	
-  	分类：
-  		按年代分类  sql92标准（仅仅支持内链接）  sql99标准（推荐）
-  		按功能分类  内连接（等值链接、非等值链接、自链接）、外链接（左外链接、右外链接、全外链接）、交叉链接
-  */
-  select name,boyName from boys,beauty where buauty.boyfriend=boys.id;
   
-  /*
-  sql92标准
-  	1.等值连接
-  	2.为表取别名（当两个表的字段名称一样时会出现歧义）
-  	注意：如果为表取了别名就不能用原表名去限定
-  	两个表的顺序可以交换
-  	
-  特点：
-  	多表连接的结果为多表的交集部分
-  	N表连接，至少需要N-1个连接条件
-  	多表的顺序没有要求
-  	一般需要为表取别名
-  	可以搭配排序、分组、筛选
-  */
-  #查询女神名和对应的男神名
-  select name,boyName from boys,beauty where beauty.boyfriend = boys.id;
-  #查询员工名和对应的部门名
-  select last_name,department_name from emp,departments where emp.dep_id = departments.id;
-  #查询员工名，工种名，工种编号
-  select last_name,job_id,job_title from emp,jobs where emp.job_id = jobs.job_id;//job_id会出现歧义
-  select last_name,e.job_id,job_title from emp as e,jobs as j where e.job_id = j.job_id;
-  
-  --增加筛选条件--
-  #查询有奖金的员工名、部门名
-  select last_name,dep_name from emp as e,dep as d where e.dep_id = d.dep_id and e.com_pct is not null;
-  
-  select dep_name,city from dep as d,locations as l where d.location_id = l.location and city like '_o%';
-  
-  --增加分组--
-  #查询每个城市的部门个数
-  select count(*),city from locations as l,emp as e where l.location_id = e.location_id group by city;
-  #查询有奖金的每个部门的部门名和部门的领导编号和该部门的最低工资
-  select dep_name,manager_id,min(salary) from emp as e,dep as d where e.dep_id=d.dep_id and com_pct is not null group by dep_name;
-  
-  --增加排序--
-  #查询每个工种的工种名和员工的个数，并且按员工的个数降序
-  select job_title,count(*) from emp e,jobs j where e.job_id=j.job_id group by job_title order by count(*) desc;
-  
-  --三表连接--
-  #查询员工名、部门名和所在的城市
-  select last_name,dep_name,city from emp e,deps d,locations l where e.dep_id=d.dep_id and d.location_id=l.location_id and city like 's%';
-  
-  /*
-  非等值连接
-  */
-  #查询员工的工资和工资级别
-  select salary,grade_level from emp e,job_grade g where salary between g.lowest_sal and g.highest_sal;
-  
-  /*
-  自连接
-  	将一张表当成多张表使用
-  	一张表中有两种需要的数据，查找两遍
-  */
-  #查询员工名和上级的名称
-  select e.last_name,m.last_name from emp e,emp m where e.manager_id=m.emp_id;
-  
-  
-  /*
-  sql99语法：
-  	select 查询列表
-  	from 表1 别名 [连接类型]
-  	join 表2 别名 
-  	on 连接条件
-  	where 筛选条件
-  	[group by 分组]
-  	[having 条件]
-  	[order by 排序列表]
-  	
-  连接类型：
-  	内连：inner
-  	外连：左外（left）[outer]、右外（right）[outer]、全外（full）[outer]
-  	交叉：cross
-  */
-  
-  /*
-  内连接语法
-  	select 查询列表
-  	from 表1 别名 inner
-  	join 表2 别名
-  	on 连接条件
-  	
-  分类：
-  	等值
-  	非等值
-  	自连接
-  */
-  --查询员工名、部门名--
-  select last_name,dep_name from emp e inner join deps d on e.dep_id = d.dep_id;
-  
-  --查询名字中包含e的员工名和工种名（添加筛选）--
-  select last_name,job_title from emp e inner join jobs j on e.job_id=j.job_id where last_name like '%e%';
-  
-  --查询部门个数>3的城市名和部门个数(添加筛选和分组)--
-  select city,count(*) from emp p inner join citys c on p.city_id=c.city_id group by city  having count(*)>3;
-  
-  --查询那个部门的员工个数>3的部门名和员工个数，并按个数降序--
-  select dep_name,count(*) from emp e inner join deps d on e.dep_id = d.dep_id group by dep_id having count(*)>3 order by count(*) desc;
-  
-  --查询员工名、部门名、工种名，并按部门名降序（三表连接：后面的表需要和前面的表有联系）--
-  select last_name,dep_name,job_name from emp e inner join deps d on e.dep_id=d.dep_id inner join jobs j on e.job_id=j.job_id order by dep_name desc;
-  
-  --员工的工资级别（非等值）--
-  select salary,grade_level from emp e join jobs_grade j on e.salary between j.lowest and j.hightest;
-  
-  --查询员工的名字和领导的名字（自连接）--
-  select e.last_name,m.last_name from emp e join emp m on e.manager_id=m.emp_id;
-  
-  /*
-  外连接
-  	应用场景：用于查询一个表中有，一个表中没有的场景
-  	特点：
-  	①外连接的查询结果为主表中的所有记录，如果有匹配的就显示匹配的值，没有就显示null
-  	外连接查询的结构=内连接查询结果+主表中有但是从表中没有的记录
-  	②左外连接，left join左边的表是主表	右外连接，right join右边的表是主表
-  	③左外和右外交换两个表的顺序可以实现同样的效果
-  */
-  --查询男朋友不在男神表的女神名(左外)--
-  select b.name from beauty b left outer join boys n on b.b_id=n.id where n.id is null;
-  
-  
-  --查询那个部门没有员工--
-  select dep_id from dep d left outer join emp e on e.dep_id=d.id where e.id is null;
-  --使用右外连接(主表不变)--
-  select dep_id from emp e right outer join dep d on e.dep_id=d.id where e.id is null;
-  
-  /*
-  全外连接=内连接结果+表一中有但表二中没有的+表2中有但表一中没有的	
-  */
-  select b.*,bo.* from beauty b full outer join boys bo on b.b_id=bo.id;
-  /*
-  交叉连接
-  	使用99语法实现笛卡尔乘积
-  */
-  select b.*,bo.* from beauty b cross join boys bo;
   ```
+
+**第六部分：连接查询**
+
+```sql
+/*
+链接查询    多表查询
+	笛卡尔乘积现象：表1有m行，表2有n行
+	如何发生的：没有有效的链接条件
+	如何避免：添加有效的链接条件
+	
+	分类：
+		按年代分类  sql92标准（仅仅支持内链接）  sql99标准（推荐）
+		按功能分类  内连接（等值链接、非等值链接、自链接）、外链接（左外链接、右外链接、全外链接）、交叉链接
+*/
+select name,boyName from boys,beauty where buauty.boyfriend=boys.id;
+
+/*
+sql92标准
+	1.等值连接
+	2.为表取别名（当两个表的字段名称一样时会出现歧义）
+	注意：如果为表取了别名就不能用原表名去限定
+	两个表的顺序可以交换
+	
+特点：
+	多表连接的结果为多表的交集部分
+	N表连接，至少需要N-1个连接条件
+	多表的顺序没有要求
+	一般需要为表取别名
+	可以搭配排序、分组、筛选
+*/
+#查询女神名和对应的男神名
+select name,boyName from boys,beauty where beauty.boyfriend = boys.id;
+#查询员工名和对应的部门名
+select last_name,department_name from emp,departments where emp.dep_id = departments.id;
+#查询员工名，工种名，工种编号
+select last_name,job_id,job_title from emp,jobs where emp.job_id = jobs.job_id;//job_id会出现歧义
+select last_name,e.job_id,job_title from emp as e,jobs as j where e.job_id = j.job_id;
+
+--增加筛选条件--
+#查询有奖金的员工名、部门名
+select last_name,dep_name from emp as e,dep as d where e.dep_id = d.dep_id and e.com_pct is not null;
+
+select dep_name,city from dep as d,locations as l where d.location_id = l.location and city like '_o%';
+
+--增加分组--
+#查询每个城市的部门个数
+select count(*),city from locations as l,emp as e where l.location_id = e.location_id group by city;
+#查询有奖金的每个部门的部门名和部门的领导编号和该部门的最低工资
+select dep_name,manager_id,min(salary) from emp as e,dep as d where e.dep_id=d.dep_id and com_pct is not null group by dep_name;
+
+--增加排序--
+#查询每个工种的工种名和员工的个数，并且按员工的个数降序
+select job_title,count(*) from emp e,jobs j where e.job_id=j.job_id group by job_title order by count(*) desc;
+
+--三表连接--
+#查询员工名、部门名和所在的城市
+select last_name,dep_name,city from emp e,deps d,locations l where e.dep_id=d.dep_id and d.location_id=l.location_id and city like 's%';
+
+/*
+非等值连接
+*/
+#查询员工的工资和工资级别
+select salary,grade_level from emp e,job_grade g where salary between g.lowest_sal and g.highest_sal;
+
+/*
+自连接
+	将一张表当成多张表使用
+	一张表中有两种需要的数据，查找两遍
+*/
+#查询员工名和上级的名称
+select e.last_name,m.last_name from emp e,emp m where e.manager_id=m.emp_id;
+
+
+/*
+sql99语法：
+	select 查询列表
+	from 表1 别名 [连接类型]
+	join 表2 别名 
+	on 连接条件
+	where 筛选条件
+	[group by 分组]
+	[having 条件]
+	[order by 排序列表]
+	
+连接类型：
+	内连：inner
+	外连：左外（left）[outer]、右外（right）[outer]、全外（full）[outer]
+	交叉：cross
+*/
+
+/*
+内连接语法
+	select 查询列表
+	from 表1 别名 inner
+	join 表2 别名
+	on 连接条件
+	
+分类：
+	等值
+	非等值
+	自连接
+*/
+--查询员工名、部门名--
+select last_name,dep_name from emp e inner join deps d on e.dep_id = d.dep_id;
+
+--查询名字中包含e的员工名和工种名（添加筛选）--
+select last_name,job_title from emp e inner join jobs j on e.job_id=j.job_id where last_name like '%e%';
+
+--查询部门个数>3的城市名和部门个数(添加筛选和分组)--
+select city,count(*) from emp p inner join citys c on p.city_id=c.city_id group by city  having count(*)>3;
+
+--查询那个部门的员工个数>3的部门名和员工个数，并按个数降序--
+select dep_name,count(*) from emp e inner join deps d on e.dep_id = d.dep_id group by dep_id having count(*)>3 order by count(*) desc;
+
+--查询员工名、部门名、工种名，并按部门名降序（三表连接：后面的表需要和前面的表有联系）--
+select last_name,dep_name,job_name from emp e inner join deps d on e.dep_id=d.dep_id inner join jobs j on e.job_id=j.job_id order by dep_name desc;
+
+--员工的工资级别（非等值）--
+select salary,grade_level from emp e join jobs_grade j on e.salary between j.lowest and j.hightest;
+
+--查询员工的名字和领导的名字（自连接）--
+select e.last_name,m.last_name from emp e join emp m on e.manager_id=m.emp_id;
+
+/*
+外连接
+	应用场景：用于查询一个表中有，一个表中没有的场景
+	特点：
+	①外连接的查询结果为主表中的所有记录，如果有匹配的就显示匹配的值，没有就显示null
+	外连接查询的结构=内连接查询结果+主表中有但是从表中没有的记录
+	②左外连接，left join左边的表是主表	右外连接，right join右边的表是主表
+	③左外和右外交换两个表的顺序可以实现同样的效果
+*/
+--查询男朋友不在男神表的女神名(左外)--
+select b.name from beauty b left outer join boys n on b.b_id=n.id where n.id is null;
+
+
+--查询那个部门没有员工--
+select dep_id from dep d left outer join emp e on e.dep_id=d.id where e.id is null;
+--使用右外连接(主表不变)--
+select dep_id from emp e right outer join dep d on e.dep_id=d.id where e.id is null;
+
+/*
+全外连接=内连接结果+表一中有但表二中没有的+表2中有但表一中没有的	
+*/
+select b.*,bo.* from beauty b full outer join boys bo on b.b_id=bo.id;
+/*
+交叉连接
+	使用99语法实现笛卡尔乘积
+*/
+select b.*,bo.* from beauty b cross join boys bo;
+```
+
+**第七部分：子查询**
+
+```sql
+/*
+子查询
+	含意：出现在其他语句中的select语句，称为子查询或者内查询
+	外部的查询语句，称为主查询或者外查询
+分类
+按子查询出现的位置：
+	select后面（仅仅支持标量子查询）
+	from后面（支持表子查询）
+	where和having后面（支持标量（单行）、列（多行）、行子查询）
+	exists后面（相关子查询）（支持表子查询）
+按结果集的行列数不同：
+	标量子查询（结果集只有一行一列）
+	列子查询（结果集只有一列多行）
+	行子查询（结果集有一行多列）
+	表子查询（结果集一般为多行多列）
+	
+*/
+
+/*
+where和having后面
+1.标量
+2.列
+
+3.行
+特点：
+	①子查询都放在小括号内
+	②子查询一般放在条件的右侧
+	③标量子查询，一般搭配单行操作符使用（> < >= <= <>）
+	④列子查询，一般搭配多行操作符使用（in、any/some、all）
+	⑤子查询的执行优先于主查询
+*/
+#1.标量子查询（如果子查询的结果不是一行一列都是非法的）
+--谁的工资比abel高--
+#①先查询abel的工资
+select salary from emp where last_name like 'abel';
+#②查询员工信息，满足salary>①的结果
+select * from emp where salary > (select salary from emp where last_name like 'abel');
+
+--返回job_id和141号员工相同，salary比143号员工多的员工信息--
+select * from emp where job_id=(select job_id from emp where id=141) and salary >(select salary from emp where id=143);
+
+--返回公司工资最少的员工的last_name、job_id和salary--
+select last_name,job_id,salary from emp where salary <= (select min(salary) from emp );
+
+--查询最低工资大于50号部门最低工资的部门ID和其最低工资--
+#①查询50号部门最低工资
+select min(salary) from emp where dep_id=50
+#②查询每个部门的最低工资
+select min(salary),dep_id from emp group by dep_id;
+#③在②基础上筛选，满足min(salary)>①
+select min(salary),dep_id from emp group by dep_id having min(salary)>(select min(salary) from emp where dep_id=50);
+
+#2.列子查询（多行子查询）
+--返回location_id是1400或者1700的部门中的所有员工姓名--
+#①查询location_id是1400或者1700的部门ID
+select dep_id from emp where loction_id in (1400,1700);
+#②查询员工姓名，满足部门号是①中的
+select last_name from emp where dep_id in (select distinct dep_id from emp where loction_id in (1400,1700))
+--返回其他部门中比job_id为‘it_prog’部门任意工资低的员工的：工号、姓名、salary--
+#①查询ob_id为‘it_prog’的部门的工资
+select distinct salary from emp where job_id like 'it_prog';
+#②查询最终结果
+select id,last_name,salary from emp where salary < any(select distinct salary from emp where job_id like 'it_prog') and job_id <> 'it_prog';
+#上面的也可以写成：
+select id,last_name,salary from emp where salary < (select distinct max(salary) from emp where job_id like 'it_prog') and job_id <> 'it_prog';
+```
+
+
 
