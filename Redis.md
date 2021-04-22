@@ -392,3 +392,43 @@
 
   
 
+- redis中的Zset（有序集合）类型
+
+  在set[set k v]的基础上，增加了一个值[zset k 排序标志 v]
+
+  应用场景：存储班级成绩、工资表、带权重的判断、排行榜
+
+  ```bash
+  #向zset类型中添加值
+  zadd myzset 1 one
+  zadd myzset 2 two 3 three
+  
+  #查看zset中的值
+  zrange myzset 0 -1;#查看全部内容
+  zrange myzset 0 0;#查看第一个内容
+  
+  #给zset类型中的值进行排序
+  zadd salary 2500 'xiaohong'
+  zadd salary 5000 'xiaoming'
+  zadd salary 200 'zhangsan'
+  
+  #按中间值排序（从小到大） 语法：zrangebyscore key min max
+  zrangebyscore salary -inf +inf;#将所有的值进行排序
+  zrangebyscore salary -inf +inf withscores;#显示值和分数
+  zrangebyscore salary -inf 2500 withscores;#只排序负无穷到2500内的并显示键和值
+  
+  #按score排序（从大到小） 语法：zrevrange key max min
+  zrevrangescore salary +inf -inf;
+  
+  #移除zset类型中的值
+  zrem salary 'xiaohong';
+  
+  #查看zset类型中有多少个元素
+  zcard salary;
+  
+  #获取zset类型中指定区间的成员数量
+  zcount salary 0 5000;
+  ```
+
+  
+
