@@ -432,3 +432,30 @@
 
   
 
+- reids中的geospatial类型(地理位置)
+
+  ```bash
+  #添加地理位置 语法：geoadd key 经度 纬度 名称 经度 纬度 名称
+  #有效经度：-180至180	有效纬度：-85至85
+  geoadd china:city 116.40 39.90 '北京'
+  geoadd china:city 121.47 31.23 '上海'
+  
+  #查询指定地点的经纬度		语法：geopos key member [member]
+  geopos china:city '北京'
+  geopos china:city '北京' '上海'
+  
+  #返回两个指定位置之间的距离		语法：geodist key member member 距离单位
+  geodist china:city '北京' '上海' km
+  
+  #以指定的经纬度为中心，找出某一半径内的元素	语法：georadius key 经度 纬度 半径 单位 count 显示数量
+  georadius china:city 110 30 1000 km
+  
+  #找出给定位置指定范围内的元素	语法：georadiusbymember key member 半径 单位
+  georadiusmember china:city '北京' 500 km
+  
+  #原理：是利用zset来实现的，因此可以使用zset的操作命令。
+  zrange china:city 0 -1;----->查看所有元素
+  zrem china:city '北京';------>移除指定元素
+  ```
+
+  
