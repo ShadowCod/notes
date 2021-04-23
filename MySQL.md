@@ -639,13 +639,10 @@ where和having后面
 select salary from emp where last_name like 'abel';
 #②查询员工信息，满足salary>①的结果
 select * from emp where salary > (select salary from emp where last_name like 'abel');
-
 --返回job_id和141号员工相同，salary比143号员工多的员工信息--
 select * from emp where job_id=(select job_id from emp where id=141) and salary >(select salary from emp where id=143);
-
 --返回公司工资最少的员工的last_name、job_id和salary--
 select last_name,job_id,salary from emp where salary <= (select min(salary) from emp );
-
 --查询最低工资大于50号部门最低工资的部门ID和其最低工资--
 #①查询50号部门最低工资
 select min(salary) from emp where dep_id=50
@@ -667,6 +664,45 @@ select distinct salary from emp where job_id like 'it_prog';
 select id,last_name,salary from emp where salary < any(select distinct salary from emp where job_id like 'it_prog') and job_id <> 'it_prog';
 #上面的也可以写成：
 select id,last_name,salary from emp where salary < (select distinct max(salary) from emp where job_id like 'it_prog') and job_id <> 'it_prog';
+
+#3.行值查询（一行多列或者多行多列）
+--查询员工编号最小且工资最高的员工信息--
+--上面知识完成--
+#①查询最小员工编号
+select min(id) from emp;
+#②查询最高工资
+select max(salary) from emp;
+#③ 查询员工信息
+select * from emp where id=(select min(id) from emp) and salary=(select max(salary) from emp);
+--行查询完成--
+select * from emp where (id,salary)=(select min(id),max(salary) from emp);
+
+/*
+select 后面   只支持标量子查询
+*/
+--查询每个部门的所有信息+员工的个数--
+select d.*,(select count(*) from emp e where e.dep_id=d.id) as '员工个数' from deps d;
+--查询员工号=102的部门名称--
+select d.dep_name,(select dep_id from emp e where id=102) as "指定部门编号" from deps d where d.dep_id = "指定部门编号";
+select (select dep_name from deps d inner join emp e on d.dep_id=e.dep_id where e.id=102) as '部门名'
+
+/*
+from 后面
+*/
+--查询每个部门的平均工资的工资等级--
+#①查询每个部门的平均工资
+select avg(salary) from emp group by dep_id;
+#②连接①的结果集和job_grades表，添加筛选条件
+select avg.*,j.grades from (select avg(salary) as av,dep_id from emp group by dep_id) avg inner join jobs j on avg.av between lowest and highest;
+
+/*
+exists 后面 （相关子查询）
+	语法：exists（完整的查询语句） 效果：判断查询的结果是否有值  结果：1|0
+*/
+--查询有员工的部门名--
+select dep_name from deps d where exists(select * from emp e where e.dep_id=d.dep_id);
+--使用in完成上面的功能--
+select dep_name from deps d where d.dep_id in (select dep_id from emp);
 ```
 
 
