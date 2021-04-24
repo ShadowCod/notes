@@ -459,3 +459,42 @@
   ```
 
   
+
+- redis中的hyperloglog类型
+
+  基数：不重复的元素，A={1,3,4,5,3,7},基数就是1,3,4,5,7
+
+  该类型的作用：做基数统计的算法，有0.81%的错误率
+
+  优点：占用内存是固定的并且占用很少(12KB)
+
+  应用：统计网页的uv（一个人访问一个网站多次,但是还是只算一次）
+
+  ```bash
+  #添加元素
+  pfadd mykey a b c d e f g h i
+  #统计不重复的元素
+  pfcount mykey
+  #合并两个key成一个新的key(重复的只算一个)(并集)
+  pfmerge mykey3 mykey1 mykey2
+  ```
+
+  
+
+- redis中的bitmaps类型
+
+  位存储（0|1），两个状态
+
+  应用场景：签到，打卡
+
+  ```bash
+  #添加元素
+  setbit sign 0 0
+  setbit sign 1 1
+  #查看
+  getbit sign 1
+  #统计(查出值为1的个数)
+  bitcount sign
+  ```
+
+  
