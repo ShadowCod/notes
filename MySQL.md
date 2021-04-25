@@ -707,3 +707,34 @@ select dep_name from deps d where d.dep_id in (select dep_id from emp);
 
 
 
+**第八部分：分页查询**
+
+```sql
+/*
+语法：
+	select 查询类别					  ⑦
+	from 表							①
+	[join type join 表2				②
+	on 连接条件						  ③
+	where 筛选条件					  ④
+	group by 分组条件				   ⑤
+	having 分组后的筛选				 ⑥
+	order by 排序字段]				   ⑧
+	limit 起始索引（从0开始），查询条数	 ⑨
+	
+特点：
+	limit语句放在查询语句的最后
+	公式：
+		要显示的页数：page，每页的条目size
+		select 查询列表
+		from 表
+		limit （page-1*size），size；
+*/
+--查询前五条的员工信息--
+select * from emp limit 0,5;
+--查询第11条到第25条员工信息--
+select * from emp limit 10,15;
+--显示有奖金的且工资较高的前10名员工信息--
+select * from emp where com_pct is not null order by salary desc limit 0,10;
+```
+
