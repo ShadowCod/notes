@@ -498,3 +498,46 @@
   ```
 
   
+
+- redis中的事务操作
+
+  redis中单条命令是保证原子性的，但是事务不能保证原子性
+
+  redis事务的本质：一组命令的集合，一个事务中的所有命令都会被序列化，在事务执行过程中，会按照顺序执行
+
+  特性：一次性、顺序性、排他性
+
+  redis中的事务没有隔离级别的概念，事务中的命令不会直接执行！只有发起执行命令的时候才会执行（exec）
+
+  ```bash
+  #开启事务（multi）
+  multi
+  #命令入队
+  set key1 vl
+  set key2 v2
+  get key2
+  #执行事务（exec）
+  exec
+  
+  #放弃事务（discard）,队列中的命令全部不执行
+  multi
+  set mykey 1
+  set mykey1 2
+  discard
+  
+  #编译型异常（代码有问题），事务中所有命令都不会执行
+  multi
+  set k1 v1
+  getset k2//错误命令
+  set k3 v3
+  exec//执行会抛错
+  #运行时异常，其他命令正常执行，错误命令抛出异常
+  set k 'hello'
+  multi
+  incr k//只能对数字加一
+  set k5 v5
+  get k5
+  exec
+  ```
+
+  
