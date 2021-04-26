@@ -541,3 +541,39 @@
   ```
 
   
+
+- redis中的乐观锁
+
+  悲观锁：很悲观，认为什么时候都可能出问题，无论做什么都会枷锁！浪费性能
+
+  乐观锁：很乐观，认为什么时候都不会出问题，所以不会上锁！更新数据的时候去判断，在此期间是否有人修改过这个数据。
+
+  ​				获取version
+
+  ​				更新时比较version
+
+  ```bash
+  #正常情况下
+  set money 100
+  set out 0
+  watch money #监视money对象（相当于获取对象现在的值，执行事务时判断对象的值是否改变）
+  multi
+  decrby money 20
+  incrby out 20
+  exec #事务正常执行完毕，监视会自动取消
+  
+  #在第一个线程执行事务操作时，第二个线程修改了监视的对象
+  watch money
+  multi
+  decrby money 10
+  incrby out 10
+  #第二个线程修改money
+  set money 1000
+  #第一个线程执行事务
+  exec  #结果是nil，事务执行失败
+  
+  #放弃监视对象（如果监视时事务执行失败，可以先解除监视，然后重新监视再进行事务操作）
+  unwatch money
+  ```
+
+  
