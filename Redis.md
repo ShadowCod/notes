@@ -577,3 +577,119 @@
   ```
 
   
+
+- redis配置文件详解
+
+  redis的启动是根据配置文件执行的
+
+  ```bash
+  #配置文件unit单位        对大小不敏感
+  #可以包含其他redis配置文件
+  bind 127.0.0.1  #绑定ip地址
+  protected-mode yes  #保护模式是否开启
+  port 6379   #端口
+  daemibuze yes   #是否用守护模式启动，默认是no
+  pidfile /var/run/redis_6379.pid   #如果以后台的方式运行，指定pid进程文件
+  
+  #日志
+  #debug:大量的信息，用于开发、测试
+  #verbose
+  #notice：部分重要信息，用于生产环境
+  #warning：非常重要的信息
+  loglevel notice 
+  logfile ''   #日志的文件位置名称
+  
+  database 16   #默认的数据库数量
+  always-show-logo yes #是否显示logo
+  
+  #快照:持久化，在规定的时间内，执行了多少次操作，则会持久化到文件.rdb  .aof
+  #注意：redis是内存数据库，如果没有持久化数据就消失了（断电即失）
+  save 900 1  #在900S内，如果有一个key进行了修改，就进行持久化操作
+  save 300 10  #在300S内，如果有十个key进行了修改，就进行持久化操作
+  save 60 10000  #在60S内，如果有一万个key进行了修改，就进行持久化操作
+  
+  stop-writes-on-bgsave-err yes   #持久化出错后是否还继续让redis工作
+  
+  rdbcompression yes   #是否压缩rdb文件，需要消耗一些cpu资源
+  
+  rdbchecksum yes   #保存rdb文件时是否检查校验
+  
+  dir ./  #rdb文件的保存目录
+  
+  #SECURITY安全
+  requirepass 123456  #设置密码（配置文件设置）
+  config set requirepass 123456   #命令设置密码
+  #注意：设置了密码后需要登陆才能操作
+  auth 123456
+  
+  #限制
+  maxclients 10000  #设置能连接上redis客户端的最大数量
+  maxmemory <bytes>   #redis配置最大的内存容量
+  maxmemory-policy noeviction #内存到达上限后的处理策略
+  #策略
+  #volatile-lru：只对设置了过期时间的key进行LRU
+  #allkeys-lru：删除Lru算法的key
+  #volatile-random：随机删除即将过期的key
+  #allkeys-random：随机删除
+  #volatile-ttl：删除即将过期的
+  #noeviction：永不过期，返回错误
+  
+  #append only模式  aof配置
+  appendonly no   #默认不开启，默认使用rdb持久化方式。在大部分情况下rdb完全够用了
+  appendfilename 'appendonly.aof'    #持久化文件的名称
+  
+  appendfsync always    #每次修改都会同步，消耗性能
+  appendfsync everysec  #每秒执行一次同步，但是可能会丢失这1s的数据
+  appendfsync no        #不执行同步，操作系统自己同步数据，速度最快
+  ```
+
+  
+
+- redis持久化RDB
+
+  ```bash
+  #原理：父进程fork一个子线程来确保持久化，而主线程只管数据库
+  
+  #rdb保存的文件默认是dump.rdb,可以在配置文件中修改
+  #修改了redis的配置文件，执行shutdown，exit然后重启reids服务
+  #使用flushall会自动触发持久化功能生成.rdb文件
+  
+  #触发规则
+  #1.配置的save规则满足
+  #2.执行了flushall命令
+  #3.退出redis
+  
+  #如何恢复rdb文件
+  #只需要将rdb文件放在redis启动目录下即可，redis启动时会自动检查
+  #查看需要存放的位置
+  config get dir;------>/usr/local/bin
+  
+  #优点：1.适合大规模的数据恢复	2.适合对数据完整性要求不高的情况
+  #缺点：1.需要一定的时间间隔进行操作，如果redis意外宕机，最后一次修改的数据就丢失了
+  #	  2.fork进程的时候会占用一定的内存空间
+  ```
+
+  
+
+- redis持久化AOF
+
+  将执行的所有命令都记录下来，恢复只需要将文件全部执行一遍即可
+
+  ```bash
+  #原理：父进程fork一个子进程，子进程将所有命令写入aof文件
+  
+  #aof保存的是appendonly.aof文件
+  #默认是不开启的，需要手动修改配置表开启，重启redis服务就可以生效了
+  
+  #oppendonly.aof可能会被破坏，被破坏后无法启动redis。可以使用redis-check-aof --fix 文件名 检测工具修复aof文件
+  redis-check-aof -- fix appendonly.aof
+  
+  #优点：1.每次修改都同步，文件完整性更好	2.默认配置为每秒同步一次，只可能丢失1S的数据
+  #缺点：1.相对于数据文件来说，aof文件远远大于rdb文件，修复的速度也比rdb慢
+  #	  2.aof运行效率比rdb慢
+  
+#如果aof文件大于64M，就会fork一个新的子进程将文件进行重写
+  ```
+  
+  
+

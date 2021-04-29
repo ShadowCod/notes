@@ -738,3 +738,56 @@ select * from emp limit 10,15;
 select * from emp where com_pct is not null order by salary desc limit 0,10;
 ```
 
+**第九部分：联合查询**
+
+```sql
+/*
+union 联合：将多条查询语句的结果合并成一个结果
+语法：
+	查询语句1
+	union
+	查询语句2
+	union
+	......
+	
+运用场景：
+	要查询的结果来着多张表且多个表没有直接的连接关系，但查询的信息一样
+	
+注意：查询的列数必须一致、查询字段的顺序最好一致、单独的union会去重（union all 不会去重）
+*/
+--查询中国用户男性的信息以及外国用户男性的信息（两张表没有关联字段）--
+select id,cname from t_ca where csex ='男'
+union
+select t_id,tName from t_ua where tGender = 'male';
+```
+
+**第十部分：插入语句**
+
+DML语言：数据库操作语言（插入：insert   修改：update   删除：delete）
+
+```sql
+/*
+插入方式一语法：
+	insert into 表名（字段名...） values(值...)
+注意：
+	1.插入的值的类型要与列的类型一致或者兼容
+	2.字段名的顺序可以不和表中一致，但是values中的值必须和字段名对应
+	3.字段名有几个值就必须有几个
+	4.可以省略字段名，默认所有字段名，且和表中顺序一致
+	
+可以为空的字段添加
+	1.有字段名就在values中填入null
+	2.不写入字段名values中也不写
+	
+	
+插入方式二语法：
+	insert into 表名 set 字段名=值，字段名=值，...
+	
+两种方式的对比：
+	1.方式一支持一次性插入多行  语法：insert into 表名（） values(),(),()
+	1.方式一支持子查询
+*/
+--支持子查询，就不需要values关键字了--
+insert into beauty(id,name,phone) select 26,'张三'.'110';
+```
+
