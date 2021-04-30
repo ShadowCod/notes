@@ -791,3 +791,22 @@ DML语言：数据库操作语言（插入：insert   修改：update   删除�
 insert into beauty(id,name,phone) select 26,'张三'.'110';
 ```
 
+**第十一部分：修改语句**
+
+```sql
+/*
+1.修改单表的记录
+	语法：
+	update 表明 set 列=新值，列=新值,... where 筛选条件
+2.修改多表的记录
+	sql92语法：
+			update 表1 别名,表2 别名 set 列=新值,... where 多表的连接条件 and 筛选条件;
+	sql99语法:
+			update 表1 别名 inner|left|right join 表2 别名 on 多表连接条件 set 列=新值,... where 筛选条件;
+*/
+--修改beauty表中姓唐的名称的电话修改为110--
+update beauty set phone=110 where name like '唐%';
+--修改多表：使用内联方式  --
+update boys bo inner join beauty b on bo.id=b.boy_id set b.phone=114 where bo.boyName="zhangsan";
+```
+
