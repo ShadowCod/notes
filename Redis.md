@@ -689,5 +689,74 @@
   #	  2.aof运行效率比rdb慢
   
   #如果aof文件大于64M，就会fork一个新的子进程将文件进行重写
-  #aof
   ```
+
+- redis发布订阅
+
+  发布(pub)订阅(sub)：是一种消息通信模式：发送者发送消息，订阅者接收消息(可以订阅任意数量)
+
+  应用场景：实时消息系统、订阅关注系统
+
+  ```bash
+  #订阅一个主题
+  subscribe channel [channel ...]
+  #发送一个主题消息
+  publish channel message
+  ```
+
+- redis主从复制
+
+  作用：主从复制，读写分离是为了解决读的问题，减缓服务器的压力
+
+  建议：redis使用的内存超过20G就建议使用集群
+
+  数据的复制是单向的，只能由主节点到从节点。master节点以写为主，slave以读为主
+
+  ```bash
+  #查看主从复制信息
+  info replication
+  #①修改配置文件：端口、后台启动、pidfile、logfile、dbfilename（dump.rdb）
+  port 6380
+  daemonize yes
+  pidfile /var/run/redis_6380.pid
+  logfile '6380.log'
+  dbfilename dump6380.rdb
+  
+  port 6381
+  daemonize yes
+  pidfile /var/run/redis_6381.pid
+  logfile '6381.log'
+  dbfilename dump6381.rdb
+  
+  #启动服务 进入/usr/local/bin
+  reids-server 配置文件
+  ```
+
+  
+
+- redis集群搭建
+
+  ```bash
+  #默认情况下，每台redis服务器都是主节点，一般只需要配置从机就可以了
+  
+#认主机
+  slaveof host port
+  
+  #注意：使用命令只是暂时的，只有使用配置文件中配置才是永久的
+  
+  replicaof <masterip> <masterport>
+  
+  masterauth <master-password>
+  
+  #细节：主机可以写，从机只能读，不能写。主机中的所有信息和数据都会自动被从机保存。
+  
+  #主机断开连接，从机依旧是连接到主机的，但是没有写操作了。主机如果回来了，从机依旧可以获取主机的信息和数据
+  #如果是使用命令来配置的主从机，从机断开后重新连接上就又会变回为主机，如果又改为主机的从机，就又可以读取主机中的信息
+  
+  #注意：当从机第一次连接到主机，主机会将整个数据文件传送到从机，并完成一次完全同步，只要重新连接到主机，就会执行一次全量复制
+  
+  #全量复制：全部数据文件同步
+  #增量复制：单行命令数据同步
+  ```
+  
+  

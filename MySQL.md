@@ -16,14 +16,12 @@
 **第二部分：命令**
 
 - 查看数据库版本--->在mysql客户端：select version();--->在windows终端：mysql --version
-
 - 显示mysql中有那些数据库：show databases;
-
 - 打开具体数据库：use 数据库名称;----->use test;
-
 - 查看打开的数据库中有那些表:show tables;
 - 在一个数据库中查看另一个数据库中的表show tables from 数据库名称;--->show tables from mysql;
 - 查看自己在那个数据库里面：select database();
+- 查看表的结构：desc 表名；
 
 语法规范：
 
@@ -795,9 +793,9 @@ insert into beauty(id,name,phone) select 26,'张三'.'110';
 
 ```sql
 /*
-1.修改单表的记录
+1.修改单的记录
 	语法：
-	update 表明 set 列=新值，列=新值,... where 筛选条件
+	update 表名 set 列=新值，列=新值,... where 筛选条件
 2.修改多表的记录
 	sql92语法：
 			update 表1 别名,表2 别名 set 列=新值,... where 多表的连接条件 and 筛选条件;
@@ -808,5 +806,49 @@ insert into beauty(id,name,phone) select 26,'张三'.'110';
 update beauty set phone=110 where name like '唐%';
 --修改多表：使用内联方式  --
 update boys bo inner join beauty b on bo.id=b.boy_id set b.phone=114 where bo.boyName="zhangsan";
+```
+
+**第十二部分：删除语句**
+
+```sql
+/*
+方式一语法：
+	单表删除
+	delete from 表名 where 筛选条件
+	多表删除
+		sql92语法：
+		delete 要删除的表的别名列表 from 表1 别名，表2 别名 where 表连接条件 and 筛选条件；
+		sql99语法：
+		delete 要删除的表的别名列表 from 表1 别名 inner|left|right join 表2 别名 on 表连接条件 where 筛选条件
+方式二语法：
+	truncate table 表名; (不允许加where，清空数据，比不加条件的delete效率高)
+*/
+--方式一单表删除：删除手机号以9结尾的--
+delete from beauty where phone like '%9';
+
+--方式一多表删除：删除张无忌的女朋友信息--
+delete b from beauty b inner join boys bo on b.bo_id=bo.id where bo.name like "张无忌";
+
+delete b,bo from beauty b inner join boys bo on b.bo_id=bo.id where bo.name like "lili";
+
+--方式二：清空boys表的所有数据--
+truncate table boys;
+```
+
+**第十三部分：DDL语言**
+
+数据定义语言：库和表的管理
+
+```sql
+/*
+一.库的管理
+创建、修改、删除
+二.表的管理
+创建、修改、删除
+
+创建：create
+修改：alter
+删除：drop
+*/
 ```
 
