@@ -850,5 +850,50 @@ truncate table boys;
 修改：alter
 删除：drop
 */
+--创建库->语法:create database if not exists 库名--
+create database books;
+--增加容错性--
+create database if not exists books;
+
+--修改库->语法：rename database 旧库名 to 新库名（现在已经不能使用了）--
+
+--更改库的字符集--
+alter database books character set gbk;
+
+--删除库->语法：drop database if exists 库名--
+drop database books;
+
+/*
+表的相关操作：
+	1.创建表语法：
+		create table if not exists 表名（
+			列名 列类型[(长度) 约束]，
+			列名 列类型[(长度) 约束]
+		）;
+	2.修改表语法：
+		①修改列名：alter table 表名 change column 旧列名 新列名 列类型；
+		②修改列的类型或约束：alter table 表名 modify column 列名 新类型;
+		③添加新列：alter table 表名 add column 列名 列类型;
+		④删除列：alter table 表名 drop column 列名;
+		⑤修改表名：alter table 旧表名 rename to 新表名;
+	3.删除表语法：
+		drop table if exists 表名；
+	4.复制表语法：
+		①只复制表结构：create table 新表名 like 要复制的表名;
+		②复制表结构和数据：create table 新表名 select * from 要复制的表名;
+*/
+--创建book表--
+create table book(
+	id int,
+    b_name varchar(20),
+    price double,
+    authorid int
+);
+
+--只复制部分表的内容--
+create table copy select * from author where city like 'cd';
+
+--只复制部分表结构(只需要筛选条件不成立)--
+create table copy1 select id,name author where 1=2;
 ```
 
