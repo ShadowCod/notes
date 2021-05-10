@@ -897,3 +897,46 @@ create table copy select * from author where city like 'cd';
 create table copy1 select id,name author where 1=2;
 ```
 
+**第十四部分：数据类型**
+
+```sql
+/*
+常见的数据类型：
+	数值型:整型、小数（定点数、浮点数）
+	字符型：较短的文本：char、varchar   较长的文本：text、blob（较长的二进制数据）
+	日期型：
+*/
+
+/*
+整型特点：
+	①默认为有符号数，要使用无符号数则需要添加unsigned标识
+	②超出范围则存入临界值
+	③类型后面的长度只是展示用的最大宽度，不够则用0填充，单必须搭配zerofill使用（使用了zerofill就只能是无符号类型）
+*/
+--如何设置无符号和有符号--
+create table tab_int(
+	t1 int,#默认是有符号
+    t2 int unsigned#无符号
+);
+
+/*
+小数：
+	1.浮点型：float（M，D）、double（M，D）
+	2.定点型：dec（M，D）、decimal（M，D）
+特点：
+	①M代表一共多少位（整数+小数），D代表小数点后面保留多少位	M和D可以省略，但是decimal默认为M为10，D为0
+	②定点型精度较高
+*/
+
+/*
+字符型
+	特点：char(M)--->(固定长度)、varchar(M)--->(可变长度)   M为最大的字符数
+*/
+
+/*
+日期型：
+datetime
+timestamp会受时区影响
+*/
+```
+
