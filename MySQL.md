@@ -16,14 +16,12 @@
 **第二部分：命令**
 
 - 查看数据库版本--->在mysql客户端：select version();--->在windows终端：mysql --version
-
 - 显示mysql中有那些数据库：show databases;
-
 - 打开具体数据库：use 数据库名称;----->use test;
-
 - 查看打开的数据库中有那些表:show tables;
 - 在一个数据库中查看另一个数据库中的表show tables from 数据库名称;--->show tables from mysql;
 - 查看自己在那个数据库里面：select database();
+- 查看表的结构：desc 表名；
 
 语法规范：
 
@@ -795,9 +793,9 @@ insert into beauty(id,name,phone) select 26,'张三'.'110';
 
 ```sql
 /*
-1.修改单表的记录
+1.修改单的记录
 	语法：
-	update 表明 set 列=新值，列=新值,... where 筛选条件
+	update 表名 set 列=新值，列=新值,... where 筛选条件
 2.修改多表的记录
 	sql92语法：
 			update 表1 别名,表2 别名 set 列=新值,... where 多表的连接条件 and 筛选条件;
@@ -808,5 +806,137 @@ insert into beauty(id,name,phone) select 26,'张三'.'110';
 update beauty set phone=110 where name like '唐%';
 --修改多表：使用内联方式  --
 update boys bo inner join beauty b on bo.id=b.boy_id set b.phone=114 where bo.boyName="zhangsan";
+```
+
+**第十二部分：删除语句**
+
+```sql
+/*
+方式一语法：
+	单表删除
+	delete from 表名 where 筛选条件
+	多表删除
+		sql92语法：
+		delete 要删除的表的别名列表 from 表1 别名，表2 别名 where 表连接条件 and 筛选条件；
+		sql99语法：
+		delete 要删除的表的别名列表 from 表1 别名 inner|left|right join 表2 别名 on 表连接条件 where 筛选条件
+方式二语法：
+	truncate table 表名; (不允许加where，清空数据，比不加条件的delete效率高)
+*/
+--方式一单表删除：删除手机号以9结尾的--
+delete from beauty where phone like '%9';
+
+--方式一多表删除：删除张无忌的女朋友信息--
+delete b from beauty b inner join boys bo on b.bo_id=bo.id where bo.name like "张无忌";
+
+delete b,bo from beauty b inner join boys bo on b.bo_id=bo.id where bo.name like "lili";
+
+--方式二：清空boys表的所有数据--
+truncate table boys;
+```
+
+**第十三部分：DDL语言**
+
+数据定义语言：库和表的管理
+
+```sql
+/*
+一.库的管理
+创建、修改、删除
+二.表的管理
+创建、修改、删除
+
+创建：create
+修改：alter
+删除：drop
+*/
+--创建库->语法:create database if not exists 库名--
+create database books;
+--增加容错性--
+create database if not exists books;
+
+--修改库->语法：rename database 旧库名 to 新库名（现在已经不能使用了）--
+
+--更改库的字符集--
+alter database books character set gbk;
+
+--删除库->语法：drop database if exists 库名--
+drop database books;
+
+/*
+表的相关操作：
+	1.创建表语法：
+		create table if not exists 表名（
+			列名 列类型[(长度) 约束]，
+			列名 列类型[(长度) 约束]
+		）;
+	2.修改表语法：
+		①修改列名：alter table 表名 change column 旧列名 新列名 列类型；
+		②修改列的类型或约束：alter table 表名 modify column 列名 新类型;
+		③添加新列：alter table 表名 add column 列名 列类型;
+		④删除列：alter table 表名 drop column 列名;
+		⑤修改表名：alter table 旧表名 rename to 新表名;
+	3.删除表语法：
+		drop table if exists 表名；
+	4.复制表语法：
+		①只复制表结构：create table 新表名 like 要复制的表名;
+		②复制表结构和数据：create table 新表名 select * from 要复制的表名;
+*/
+--创建book表--
+create table book(
+	id int,
+    b_name varchar(20),
+    price double,
+    authorid int
+);
+
+--只复制部分表的内容--
+create table copy select * from author where city like 'cd';
+
+--只复制部分表结构(只需要筛选条件不成立)--
+create table copy1 select id,name author where 1=2;
+```
+
+**第十四部分：数据类型**
+
+```sql
+/*
+常见的数据类型：
+	数值型:整型、小数（定点数、浮点数）
+	字符型：较短的文本：char、varchar   较长的文本：text、blob（较长的二进制数据）
+	日期型：
+*/
+
+/*
+整型特点：
+	①默认为有符号数，要使用无符号数则需要添加unsigned标识
+	②超出范围则存入临界值
+	③类型后面的长度只是展示用的最大宽度，不够则用0填充，单必须搭配zerofill使用（使用了zerofill就只能是无符号类型）
+*/
+--如何设置无符号和有符号--
+create table tab_int(
+	t1 int,#默认是有符号
+    t2 int unsigned#无符号
+);
+
+/*
+小数：
+	1.浮点型：float（M，D）、double（M，D）
+	2.定点型：dec（M，D）、decimal（M，D）
+特点：
+	①M代表一共多少位（整数+小数），D代表小数点后面保留多少位	M和D可以省略，但是decimal默认为M为10，D为0
+	②定点型精度较高
+*/
+
+/*
+字符型
+	特点：char(M)--->(固定长度)、varchar(M)--->(可变长度)   M为最大的字符数
+*/
+
+/*
+日期型：
+datetime
+timestamp会受时区影响
+*/
 ```
 
