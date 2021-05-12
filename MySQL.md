@@ -940,3 +940,53 @@ timestamp会受时区影响
 */
 ```
 
+**第十五部分：常见的约束**
+
+```sql
+/*
+含义：一种限制，用于限制表中的数据，保证表中数据的准确性和可靠性（一致性）
+分类：（六大约束）
+	 not null:非空
+	 default：默认，保证字段有个默认值
+	 primary key：主键，唯一且不能为空
+	 unique：唯一但可以为空
+	 check：检查约束【mysql不支持】，类似于条件
+	 foreign key：外键
+使用时机:在数据未放入表中时都可以使用（创建表、修改表）
+
+约束添加的分类：
+	列级约束：六大约束在语法上都支持，但是外键约束没有效果
+	表级约束：除了非空和默认，其他都支持（添加位置在所有列之后）
+*/
+--列级约束--
+create table stu(
+	id int primary key,
+    stuName varchar(20) not null,
+    gender char(1) check(gender="男" or gender="女"),
+    age int default 18,
+    sit int unique
+);
+
+--表级约束--
+create table if not exists stus(
+	id int,
+    stuName varchar(20),
+    age int,
+    gender char(1),
+    sit int,
+    constrainf pk primary key(id),
+    constrainf uq unique(sit)
+    constrainf fk_stu_major foreign key(majorid) references major(id)
+)
+
+--通用写法--
+create table if not exists stu{
+	id int primary key,
+	stuName varchar(20) not null,
+	gender char(1),
+	sit int unique,
+	majorid int,
+	foreign key(majorid) references major(id)
+}
+```
+
