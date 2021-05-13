@@ -988,5 +988,14 @@ create table if not exists stu{
 	majorid int,
 	foreign key(majorid) references major(id)
 }
+
+/*
+主键和唯一的区别：
+			保证唯一性		是否允许为空		一个表中可以又几个		是否运行组合(不推荐)
+主键			true			false			至多一个				允许
+唯一			true		true(只能一个null)		多个				   允许(unique(id,name))
+*/
+
+
 ```
 
