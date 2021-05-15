@@ -19,3 +19,163 @@
 
 ###### RPC协议
 
+- 什么是RPC
+  - 远程过程调用，属于应用层的协议，使用的tcp实现
+
+- 理解RPC
+  - 像调用本地函数一样去调用远程函数（通过rpc协议，传递函数名、参数调用远端函数，得到返回值）
+
+- 为什么要使用RPC协议
+  - 每个为服务都是一个独立的进程，且可以使用不同的语言开发，只要都遵循RPC协议就能通讯
+
+###### RPC使用入门
+
+- 远程---->网络通信
+
+  > 回顾golang的socket通讯
+  >
+  > server:
+  >
+  > ​	net.listen()--->listener
+  >
+  > ​	listener.appect()--->conn
+  >
+  > ​	conn.read()
+  >
+  > ​	conn.write()
+  >
+  > ​	defer conn.close()|listener.close()
+  >
+  > client:
+  >
+  > ​	net.Dial()--->conn
+  >
+  > ​	conn.write()
+  >
+  > ​	conn.read()
+  >
+  > ​	defer conn.close()
+
+- 步骤
+
+  - server端：
+
+    >1.注册RPC服务对象，给对象绑定方法（1.定义类 2.绑定类方法）
+    >
+    >```go
+    >rpc.ResgisterName("rpc名称"，回调函数)
+    >```
+    >
+    >2.创建监听器
+    >
+    >```go
+    >listener,err:=net.Listen()
+    >```
+    >
+    >3.建立连接
+    >
+    >```go
+    >conn,err:=listener.Accpet()
+    >```
+    >
+    >4.将连接绑定到RPC服务
+    >
+    >```go
+    >rpc.Server(conn)
+    >```
+
+  - client端：
+
+    >1.连接RPC服务
+    >
+    >```go
+    >conn,err:=rpc.Dail()
+    >```
+    >
+    >2.调用远程函数
+    >
+    >```go
+    >conn.Call("服务名.方法名",传入参数,传出参数)
+    >```
+
+- Rpc相关函数
+
+  ```go
+  //注册rpc服务
+  func (server *server) RegisterName(name string,rcvr interface{}) error
+  参1:服务名称
+  参2:对应的rpc对象
+  	1).方法必须是导出的（首写字母大写）
+  	2).方法有两个参数
+  	3).第二个参数必须是'指针'（传出参数）
+  	4).方法只有一个error返回值
+  
+  参2案例：
+  type World struct{
+  }
+  func (w *World) HelloWorld(name stirng,resp *string) error{
+  }
+  注册案例：
+  rpc.RegisterName("服务名",new(World))
+  
+  //绑定服务
+  func(server *server)ServeConn(conn io.ReadWriteCloser)
+  conn:成功建立连接后的socket--->conn
+  
+  //调用远程函数
+  func (c *client) Call(serviceName string,args interface{},reply interface{})error
+  serviceName:"服务名.方法名"
+  args：传入参数
+  reply:传出参数--->定义var变量，&变量名，完成传参
+  ```
+
+  
+
+- 代码实现
+
+  ```go
+  //服务端
+  package main
+  
+  import 'net/rpc'
+  
+  type World struct{
+      
+  }
+  func (w *World) HelloWorld(name string,resp *string)error{
+      *resp=name+"hello world"
+  }
+  func main(){
+      w:=World{}
+      err:=rpc.RegisterName("hello",w)
+      if err!=nil{
+          fmt.Println("register_name err")
+          return
+      }
+      listener,err:=net.Listen("tcp","127.0.0.1:8080")
+      if err!=nil{
+          fmt.Println("Listen err")
+          return
+      }
+      defer listener.Close()
+      conn,err:=listener.Accept()
+      if err!=nil{
+          fmt.Println("Accept err")
+          return
+      }
+      defer conn.Close()
+      rpc.ServeConn(conn)
+  }
+  
+  //客服端
+  package main
+  import 'net/rpc'
+  
+  func main(){
+      conn,err:=rpc.Dail("tcp","127.0.0.1:8080")
+      var resp string
+      err=conn.Call("hell.HelloWorld","张三",&resp)
+  }
+  ```
+
+  
