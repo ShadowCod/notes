@@ -148,21 +148,9 @@
   func main(){
       w:=World{}
       err:=rpc.RegisterName("hello",w)
-      if err!=nil{
-          fmt.Println("register_name err")
-          return
-      }
       listener,err:=net.Listen("tcp","127.0.0.1:8080")
-      if err!=nil{
-          fmt.Println("Listen err")
-          return
-      }
       defer listener.Close()
       conn,err:=listener.Accept()
-      if err!=nil{
-          fmt.Println("Accept err")
-          return
-      }
       defer conn.Close()
       rpc.ServeConn(conn)
   }
@@ -177,5 +165,87 @@
       err=conn.Call("hell.HelloWorld","张三",&resp)
   }
   ```
+  
+  
+  
+- 通信问题
+  - 不同的语言之间通信会存在乱码的情况
+    - go语言实现rpc使用了特有的数据序列化方式：gob，其他语言不能正常解析
+    - 使用通用的序列化技术：json、protobuf
+
+- 使用json格式化rpc数据
+
+  - client端
+
+    ```go
+    package main
+    import (
+    	'net/rpc/jsonrpc'
+    )
+    func main(){
+        conn,err:=jsonrpc.Dail("tcp","127.0.0.1:8080")
+        var result string
+        conn.Call("hello.HelloWorld","zhangsan",&result)
+    }
+    ```
+
+  - server端
+
+    ```go
+    package main
+    
+    import 'net/rpc/jsonrpc'
+    
+    type World struct{
+        
+    }
+    func (w *World) HelloWorld(name string,resp *string)error{
+        *resp=name+"hello world"
+    }
+    func main(){
+        w:=World{}
+        err:=rpc.RegisterName("hello",w)
+        listener,err:=net.Listen("tcp","127.0.0.1:8080")
+        defer listener.Close()
+        conn,err:=listener.Accept()
+        defer conn.Close()
+        jsonrpc.ServeConn(conn)
+    }
+    ```
+    
+  - ==如何绑定方法返回的error不为空，接收的数据就为空==
+
+- rpc封装
+
+  - 为什么需要做封装？
+    - 如果注册rpc时，传入的对象的方法不符合规范，编译时是不会抛错的，只有在运行时才抛错，需要防止这种情况的出现，使其在编译时就暴露出问题
+
+  ```go
+  //server端
+  package main
+  import 'net/rpc'
+  type rpcInterface interface{//定义接口类型
+      rpcFunction(arg string,resp *string) error
+  }
+  
+  func serverRegister(name string,i rpcInterface){//实现了接口类型的才能正确使用该函数
+      rpc.RegisterName(name,i)
+  }
+  type stu struct {}
+  func (s *stu) rpcFunction (name string,resp *string)error{//实现接口方法
+      *resp=name+"hello"
+      return nil
+  }
+  func main(){
+      w:=World{}
+      serverRegister("hello",w)
+      listener,err:=net.Listen("tcp","127.0.0.1:8080")
+      defer listener.Close()
+      conn,err:=listener.Accept()
+      defer conn.Close()
+      jsonrpc.ServeConn(conn)
+  }
+  ```
 
   
+
