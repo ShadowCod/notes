@@ -1024,3 +1024,33 @@ set auto_increment_increment 3;
 insert into stu value(10,"zhangsan");//后面在写入就是从10以后开始了
 ```
 
+**第十六部分：TCL**
+
+```sql
+/*
+TCL:事务控制语言
+
+事务：一个或一组sql语句组成一个执行单元，这个执行单元要么都执行，要么都不执行
+
+事务的属性（ACID）：原则性、一致性、隔离性、持久性
+
+事务的创建：
+	1.隐式事务：事务没有明显的开启和结束标记（update\insert\delete）
+	2.显示事务：事务有开启和结束标记(前提时必须先设置自动提交功能为禁用 set autocommit=0)
+	
+步骤：
+	1.开启事务   set autocommit=0;
+	2.start transaction(可选)
+	3.编写事务中的sql语言
+	4.结束事务   commit|rollback
+*/
+--使用事务--
+set autocommit=0;
+start transaction;
+update account set balance = 500 where username = "zhang";
+update account set balance = 1500 where username = "san";
+commit;
+```
+
+
+
