@@ -249,3 +249,73 @@
 
   
 
+- golang中protobuf语法
+
+  - protobuf是类似json一样的数据描述语言（数据格式）==序列化后体积小==、==反序列化快==
+  - protobuf非常适合于rpc数据交换格式
+
+  ```protobuf
+  //从创建一个以.proto结尾的文件
+  syhtax = 'proto3';//指定版本（默认是proto2）
+  
+  package pb;//指定所在包包名
+  
+  //枚举类型
+  enum Week{
+      Monday = 0;//枚举类型必须从0开始
+      Thresday = 1；
+  }
+  //消息定义中的每个字段都有一个唯一的编号，编号用于标识消息二进制格式的字段（不能使用19000-19999）
+  message Student{
+      int32 id = 1;//同一个结构体中可以不从1开始，但是不能重复
+      string name = 2;
+      People p = 3;//支持嵌套
+      repeated int32 score = 4;//数组|切片
+      Week w =5;//枚举类型
+      oneof data{//联合类型
+          string teacher = 6;
+          int32 class = 7;
+      }
+  }
+  
+  message People{
+      int32 wight = 1；
+  }
+  ```
+
+  
+
+- protobuf编译
+
+  > C++编译命令
+  >
+  > protoc --cpp_out = ./ *.proto ---->xx.pb.cc 和xx.pb.h
+
+  > golang编译命令
+  >
+  > protoc --go_out = ./ *.proto  ---->xx.pb.go
+
+- protobuf中添加rpc服务
+
+  - 语法：
+
+  ```protobuf
+  service 服务名{
+  	rpc 函数名(参数：消息体) returns (返回值：消息);//注意：此处是returns，这个s不能少
+  }
+  
+  例子：
+  message People{
+  	string name = 1;
+  }
+  message Resp{
+  	string mes = 1;
+  }
+  service hello {
+  	rpc HelloWorld(People) returns (Resp);
+  }
+  ```
+
+  - 默认情况下，protobuf在编译期间不会编译RPC服务，要想编译需要使用GRPC
+    - 命令：protoc --go_out = plugins = grpc : ./ *.proto
+

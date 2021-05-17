@@ -1003,5 +1003,24 @@ create table if not exists stu{
 	3.主表的关联列一般为主键或者唯一键
 	4.插入数据时，必须先有外键数据，删除数据时，必须先删除从表数据
 */
+
+/*
+标识列（自增长列）
+	含义：可以不用手动插入值，系统提供默认的序列值，从1开始
+特点：
+	1.标识列必须和主键搭配吗？不一定，但要求是和一个key搭配
+	2.一个表中可以有几个标识列？至多有一个
+	3.标识列的类型只能是数值型
+	4.标识列可以设置步长、可以通过收到插入设置起始值
+*/
+--使用自增长--
+create table stu(
+	id int primary key auto_increment,
+    name varchar(20)
+)
+--设置自增长的步长--
+set auto_increment_increment 3;
+--根据需要修改起始值--
+insert into stu value(10,"zhangsan");//后面在写入就是从10以后开始了
 ```
 
