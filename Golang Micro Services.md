@@ -63,7 +63,7 @@
     >1.注册RPC服务对象，给对象绑定方法（1.定义类 2.绑定类方法）
     >
     >```go
-    >rpc.ResgisterName("rpc名称"，回调函数)
+    >rpc.ResgisterName("rpc名称"，实现接口的对象)
     >```
     >
     >2.创建监听器
@@ -196,9 +196,7 @@
     
     import 'net/rpc/jsonrpc'
     
-    type World struct{
-        
-    }
+    type World struct{}
     func (w *World) HelloWorld(name string,resp *string)error{
         *resp=name+"hello world"
     }
@@ -214,7 +212,7 @@
     ```
     
   - ==如何绑定方法返回的error不为空，接收的数据就为空==
-
+  
 - rpc封装
 
   - 为什么需要做封装？

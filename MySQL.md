@@ -1032,7 +1032,7 @@ TCL:事务控制语言
 
 事务：一个或一组sql语句组成一个执行单元，这个执行单元要么都执行，要么都不执行
 
-事务的属性（ACID）：原则性、一致性、隔离性、持久性
+事务的属性（ACID）：原子性、一致性、隔离性、持久性
 
 事务的创建：
 	1.隐式事务：事务没有明显的开启和结束标记（update\insert\delete）
@@ -1050,6 +1050,22 @@ start transaction;
 update account set balance = 500 where username = "zhang";
 update account set balance = 1500 where username = "san";
 commit;
+
+/*
+脏读、不可重复读、幻读（插入时出现）
+查看隔离级别：
+	select @@tx_isolation;
+设置隔离级别：
+	set session transaction isolation level 隔离级别;
+	
+回滚点:savepoint
+*/
+--回滚点使用--
+set autocommit=0;
+delete from account where id=23;
+savepoint a;//设置保存点
+delete from account where id = 25;
+rollback to a;//回滚到保存点
 ```
 
 
