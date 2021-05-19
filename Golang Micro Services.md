@@ -319,3 +319,66 @@
   - 默认情况下，protobuf在编译期间不会编译RPC服务，要想编译需要使用GRPC
     - 命令：protoc --go_out = plugins = grpc : ./ *.proto
 
+- Grpc知识
+
+  ```protobuf
+  //在pb包中创建person.proto
+  syntax="proto3";
+  package pb;
+  //一个package中不允许定义同名的消息体
+  message Teacher{
+  	int32 age=1;
+  	string name=2;
+  }
+  //定义服务
+  service SayName{
+  	rpc SayHello(Teacher) returns (Teacher)
+  }
+  ```
+
+  ```go
+  //服务端grpc
+  package main
+  import (
+      'google.golang.org/grpc'
+      'src/pb'
+      'context'
+      'net'
+  )
+  
+  type M struct{}
+  func (m *M) SayHello(c context.Context,t *pb.Teacher)(*pb.Teacher,error){
+      t.Name+="chi"
+      return t,nil
+  }
+  func main(){
+      //1.初始化一个grpc对象
+      grpcServer:=grpc.NewServer()
+      //2.注册服务
+      pb.RegisterSayNameServer(grpcServer,new(M))
+      //3.设置监听
+      listener,err:=net.Listen("tcp","127.0.0.1:8800")
+      //4.启动服务
+      grpcServer.Serve(listener)
+  }
+  ```
+
+  ```go
+  //客户端grpc
+  package main
+  import ('')
+  fun main(){
+      //1.连接Grpc服务
+      conn，err:=grpc.Dail("127.0.0.1:8800",grpc.WithInsecure())
+      //2.初始化grpc客户端
+      grpcClient:=pb.NewSayNameClient(conn)
+      //创建并初始化一个Teacher
+      var teacher pb.Teacher
+      teacher.Name="san"
+      teacher.Age=20
+      //3.调用远程
+      t,err:=grpcClient.SayHello(context.TODO(),&teacher)
+  }
+  ```
+
+  
