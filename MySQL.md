@@ -1081,6 +1081,30 @@ rollback to a;//回滚到保存点
 	1.重用sql语句
 	2.简化复杂的sql操作，不比知道查询细节
 	3.保护数据，提高安全性
+	
+修改视图：
+	方式一：create or replace view 视图名 as 查询语句；
+	方式二：alter view 视图名 as 查询语句；
+	
+删除视图：
+	语法：drop view 视图名，视图名,...;
+	
+查看视图结构类型：
+	语法：show create view 视图名;	desc 视图名;
+*/
+--创建视图--
+create view emp_v1 as select last_name,salary,email from emp where phone like '011%';
+
+/*
+视图的更新
+	insert、update、delete可以修改视图中的数据，原表的数据也会被修改
+	不能修改的视图特点：
+		1.包含关键字：分组函数、distinct、group by、having、union、union all
+		2.常量视图
+		3.select中含有子查询
+		4.join
+		5.form 一个不能更新的视图
+		6.where子句的子查询引用了from子句中的表
 */
 ```
 
