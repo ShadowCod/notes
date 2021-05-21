@@ -1,11 +1,11 @@
 ### Golang Micro Services
 
- ###### 什么是微服务
+ ##### 什么是微服务
 
 - 一个服务仅用于某个特定的业务功能，相互独立
 - 总而言之，微服务的目标是通过将应用程序分解成较小的可组合的部分，以便在需要时可以独立部署、升级、删除或缩放，从而简化构建、维护和管理应用程序
 
-###### 单体式架构和微服务的区别
+##### 单体式架构和微服务的区别
 
 - 单体式：所有的业务处理都在一个服务上，一个业务处理崩溃就可以导致这个服务崩溃（soa按功能模块划分）
   - ==复杂性==随着开发==越来越高==，遇到问题解决困难
@@ -17,7 +17,7 @@
   - 优点：职责单一、轻量级通讯、迭代开发方便、独立性高
   - 缺点：运维成本高、部署复杂度高、接口成本高、重复性劳动、业务分离困难
 
-###### RPC协议
+##### RPC协议
 
 - 什么是RPC
   - 远程过程调用，属于应用层的协议，使用的tcp实现
@@ -28,7 +28,7 @@
 - 为什么要使用RPC协议
   - 每个为服务都是一个独立的进程，且可以使用不同的语言开发，只要都遵循RPC协议就能通讯
 
-###### RPC使用入门
+##### RPC使用入门
 
 - 远程---->网络通信
 
@@ -377,6 +377,64 @@
       //3.调用远程
       t,err:=grpcClient.SayHello(context.TODO(),&teacher)
   }
+  ```
+
+  
+
+##### go micro
+
+- micro是一个专注于简化分布式系统开发的微服务生态系统。由开源库和工具组成：go-micro(核心)、go-plugins、micro
+
+- 服务发现：微服务开发中必须的技术
+
+  ```go
+  //传统的客户端访问服务端：通过ip:port请求，不同的服务通过不同的ip:port请求，如果服务端的ip:port发生了变化，客户端必须知道并且修改才能继续访问
+  
+  //服务发现是加在客户端和服务端之间的一层，每个服务启动时会去服务发现注册ip:port和服务名，客户端先向服务发现请求获取目的服务的ip:port，客户端再借助服务发现将请求发向目的服务
+  ```
+
+- 服务发现种类
+  - consul：常用于go-micro
+  - mdns：go-micro默认自带的
+  - etcd：k8s内嵌的服务发现
+  - zookeeper:java中常用
+
+- consul关键特性：服务发现（服务端主动向其进行注册）、健康检查（心跳检测）、键值存储（一般使用redis）、多数据中心（方便搭建集群）
+
+- consul安装
+
+  ```go
+  1.下载安装包：wget https://releases.hashicorp.com/consul/1.5.2/consul_1.5.2_linux_amd64.zip
+  2.解压安装包：unzip consul_1.5.2_linux_amd64.zip
+  3.将解压包放到：sudo consul /usr/local/bin/
+  4.检查是否成功：consul -h
+  ```
+
+  
+
+- consul常用命令
+
+  ```go
+  consul agent 
+  	-dev    于开发者模式（使用默认配置）启动一个consul代理
+  	-bind=0.0.0.0	指定consul所在机器的ip地址
+  	-http-port=8500		访问端口
+  	-client=127.0.0.1	可以访问该consul的机器的ip（0.0.0.0即所有机器均可访问）
+  	-config-dir=foo		所有主动注册服务的描述信息存储文件
+  	-data-dir=path		存储注册机器的信息信息
+  	-node=hostname		服务发现的名称
+  	-rejoin				consul启动时，允许加入到集群
+  	-server				以服务启动允许其他consul连接，不加则不能连接
+  	-ui					可以使用web页面查看服务发现信息
+  
+  测试案例：
+  consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul -node=n1 -bind=192.168.0.1 -ui -rejoin -config-dir=/etc/consul.d/ -client 0.0.0.0
+  
+  浏览器上：192.168.0.1:8500可以看见详情
+  
+  consul members:查看集群中的成员
+  consul info:查看当前consul的相关信息
+  consul leave:优雅的关闭consul
   ```
 
   
