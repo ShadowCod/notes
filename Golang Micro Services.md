@@ -438,3 +438,184 @@
   ```
 
   
+
+- 注册服务到consul上
+
+  ```go
+  //通过提供服务定义文件或者调用http api来注册
+  步骤：
+  	1.进入配置文件的路径（即-config-dir的配置路径下）
+  	2.创建一个json文件
+  	3.按json语法填写服务信息
+  		{
+              "service":{
+                  "name":"服务名称",
+                  "tags":["别名1","别名2"],
+                  "port":8800
+              }
+          }
+  	4.重启consul
+  
+  查看服务：
+  curl -s 127.0.0.1:8500/v1/catalog/service/服务名称
+  ```
+
+  
+
+- 健康检查
+
+  ```shell
+  在编写的json文件中添加check对象
+  		{
+              "service":{
+                  "name":"服务名称",
+                  "tags":["别名1","别名2"],
+                  "port":8800,
+                  "check":{
+                  	"id":"api",
+                  	"name":"servier check",
+                  	"http":"http://192.168.6.77:8800",
+                  	"interval":"10s",
+                  	"timeout":"1s"
+                  }
+              }
+          }
+  重新加载配置文件的方法：
+  	1.关闭consul后重新启动
+  	2.在consul启动的情况下使用：consul reload
+  	
+  除了http实现健康检查外，还可以使用"脚本"、"tpc"、"tcl"方式进行健康检查
+  ```
+
+  
+
+##### grpc和consul的结合使用
+
+```shell
+整体流程：
+	1.创建proto文件，指定rpc服务
+	2.启动consul服务
+	3.启动server	[1.获取consul对象	2.使用consul对象将server信息注册到consul	3.启动服务]
+	4.启动client	[1.获取consul对象	2.使用consul对象获取健康的服务	3.访问服务(grpc远程调用)]
+```
+
+
+
+```go
+//1.创建pb文件夹，在pb中创建一个proto文件
+syntax="proto3";
+package pb;
+message Peroson{
+    string name = 1,
+    string say = 2
+}
+service say{
+    rpc saySomething(Person) returns (Person)
+}
+//2.在pb包中编译proto文件
+protoc --go_out=plugins=grpc:./*.proto
+```
+
+```go
+//3.编写服务端的代码
+package main
+
+type Stu struct{}
+//实现xx.pb.proto中的方法
+func (s *Stu)SaySomething(c context.Context,p *pb.Person)(*pb.Person,error){
+    p.Say=p.Name+"hello"
+    return p,nil
+}
+
+func main(){
+    //1.初始化grpc对象
+    grpc:=grpc.NewServer()
+    //2.注册服务
+    pb.RegisterSayServer(grpc,new())
+    //3.设置监听
+    listener,err:=net.Listen("tcp","127.0.0.1:8800")
+    //4.启动服务
+    grpc.Serve(listener)
+}
+```
+
+```go
+//4.编写客户端代码
+package main
+func main(){
+    //1.连接服务
+    grpcConn,err:=grpc.Dail("127.0.0.1:8800",grpc.WithInsecure)
+    //2.初始化grpc客户端
+    client:= pb.NewClient(grpcConn)
+    //3.远程调用函数
+    var p pb.Person
+    p.Name="zhang"
+    p,err:=client.SaySomething(context.TODO(),&Person)
+    fmt.Println(p)
+}
+```
+
+```go
+//5.引入consul，把grpc注册到consul上（服务端）
+import 'github.com/hashicorp/consul/api'
+func main(){
+    //-----------------------------------consul-----------------------------
+    //1.获取consul配置文件
+    consulConfig:=api.DefaultConfig()
+    //2.创建consul对象
+    consulClient,err:=api.NewClient(consulConfig)
+    //3.注册服务的配置信息
+    registerService:=api.AgentServiceRegistration{
+        ID:"service",
+        Tags:[]string{"grpc","consul"},
+        Name:"grpc register",
+        Address:"127.0.0.1",
+        Port:8800,
+        Check:&api.AgentServiceCheck{
+            Tcp:"192.168.137.130:8800",
+            Timeout:"5s",
+            Interval:"10s",
+        },
+    }
+    //4.注册服务到consul上
+    consulClient.Agent().ServiceRegister(&registerService)
+    //--------------------------------------grpc----------------------------
+    //1.初始化grpc对象
+    grpc:=grpc.NewServer()
+    //2.注册服务
+    pb.RegisterSayServer(grpc,new())
+    //3.设置监听
+    listener,err:=net.Listen("tcp","127.0.0.1:8800")
+    //4.启动服务
+    grpc.Serve(listener)
+}
+```
+
+```go
+//6.引入consul（客户端）
+package main
+func main(){
+    //1.初始化consul配置
+    config:=api.DefaultConfig()
+    //2.初始化consul对象(可以重新指定consul属性：ip/port)
+    client,err:=api.NewClient(config)
+    //3.服务发现（从consul上获取健康的服务)
+    services,_,err:=client.Health().Service("grpc register","grpc",true,nil)
+    //4.调用服务
+    
+}
+```
+
+```go
+//使用到的函数
+func(h *Health)Service(service,tag string,passingOnly bool,q *QuerOptions)([]*ServiceEntry,*QuerMeta,error){}
+//参数
+service:服务名称---注册服务时指定
+tag:别名
+passingOnly：是否通过健康检查
+q:查询参数，一般nil
+//返回值
+serviceEntry:存储服务的切片（可用的服务）
+QuerMeta：额外查询返回值
+```
+
