@@ -491,6 +491,8 @@
 
 ##### grpc和consul的结合使用
 
+- 注册使用服务
+
 ```shell
 整体流程：
 	1.创建proto文件，指定rpc服务
@@ -601,8 +603,18 @@ func main(){
     client,err:=api.NewClient(config)
     //3.服务发现（从consul上获取健康的服务)
     services,_,err:=client.Health().Service("grpc register","grpc",true,nil)
-    //4.调用服务
-    
+    //4.组装远程函数地址
+    addr:=services[0].Service.Address+":"+strconv.Atoi(service[0].Service.Port)
+    //--------------------------------------grpc----------------------------
+    //1.连接服务
+    grpcConn,err:=grpc.Dail(addr,grpc.WithInsecure)
+    //2.初始化grpc客户端
+    client:= pb.NewClient(grpcConn)
+    //3.远程调用函数
+    var p pb.Person
+    p.Name="zhang"
+    p,err:=client.SaySomething(context.TODO(),&Person)
+    fmt.Println(p)
 }
 ```
 
@@ -617,5 +629,83 @@ q:查询参数，一般nil
 //返回值
 serviceEntry:存储服务的切片（可用的服务）
 QuerMeta：额外查询返回值
+```
+
+- 注销服务
+
+  ```go
+  package main
+  
+  func main(){
+      //获取配置
+      config:=api.DefatuilConfig()
+      //初始化consul对象
+      client,err:=api.NewClient(config)
+      //注销
+      client.Agent().ServiceDeregister("service")
+  }
+  ```
+
+#### go-micro
+
+- 安装方式：在线安装、docker镜像安装
+
+- 测试：使用micro命令即可
+
+##### go-micro的使用
+
+```go
+new
+	参数：
+	--namespace：命名空间==包名
+	--type：为服务类型（srv(微服务)\web(基于微服务的web网站))
+```
+
+```go
+//创建微服务项目文件
+micro new --type srv 项目名称
+生成文件介绍：
+main:项目入口
+handler/：处理grpc实现的接口，对应实现接口的子类都放在该文件中
+proto/：预生成的protobuf文件目录
+dockerfile：部署微服务使用的dockerfile
+makefile：编译文件 --快速编译protobuf文件
+
+//使用make命令编译protobuf文件
+make proto------>xx.pb.go和xx.micro.go
+```
+
+```go
+//生成的main.go文件
+func main(){
+    //初始化
+    service:=mirco.NewService(
+        micro.Name("服务器名称"),
+        micro.Version("版本号"),
+    )
+    
+    //注册服务
+    项目名.Register项目名Handler(service.Server(),new(handler.项目名))
+    //运行服务
+    service.Run()
+}
+```
+
+- 在micro框架中添加consul
+
+```go
+import 'github.com/micro/go-micro/registry/consul'
+func main(){
+    //初始化服务发现
+    consulReg:=consul.NewRegistry()
+    //初始化micro
+    service:=micro.NewService(
+        micro.Name(""),
+        micro.Registry(consulReg),
+        micro.Version(""),
+    )
+    //另一种初始化
+    service.Init()
+}
 ```
 

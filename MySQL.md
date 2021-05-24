@@ -1041,7 +1041,7 @@ TCL:事务控制语言
 步骤：
 	1.开启事务   set autocommit=0;
 	2.start transaction(可选)
-	3.编写事务中的sql语言
+	3.编写事务中的sql语言（一般为insert、update、delete）
 	4.结束事务   commit|rollback
 */
 --使用事务--
@@ -1066,6 +1066,11 @@ delete from account where id=23;
 savepoint a;//设置保存点
 delete from account where id = 25;
 rollback to a;//回滚到保存点
+
+/*
+delete 和 truncate
+	在事务中使用delete可以回滚，但是truncate则不能回滚数据
+*/
 ```
 
 **第十七部分：视图**
