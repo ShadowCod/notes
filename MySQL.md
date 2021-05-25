@@ -1022,6 +1022,12 @@ create table stu(
 set auto_increment_increment 3;
 --根据需要修改起始值--
 insert into stu value(10,"zhangsan");//后面在写入就是从10以后开始了
+
+/*
+外键的级联删除和级联置空
+	级联删除：alter table stuinfo add constratnt fk_stu_major foreign key(majorid) references major(id) on delete cascad;
+	级联置空：alter table stuinfo add constratnt fk_stu_major foreign key(majorid) references major(id) on delete set null;
+*/
 ```
 
 **第十六部分：TCL**
@@ -1110,6 +1116,65 @@ create view emp_v1 as select last_name,salary,email from emp where phone like '0
 		4.join
 		5.form 一个不能更新的视图
 		6.where子句的子查询引用了from子句中的表
+*/
+```
+
+**第十八部分：变量**
+
+```sql
+/*
+系统变量：由系统提供的，不是用户定义的，属于服务器层次
+	全局变量（针对所有的会话，但是不能跨重启）、会话变量（针对当前会话）
+自定义变量
+	用户变量(针对当前会话)、局部变量（只能再begin end中有效）
+*/
+/*
+系统变量的使用：
+	1.查看全部系统变量
+	show global | [session] variables;
+	2.查看满足条件的系统变量
+	show golbal | [session] variables like "%char%";
+	3.查看指定变量的值
+	select @@global | [session].系统变量名；
+	4.为某个系统变量赋值
+		方式一：set global | [session] 系统变量名= 值；
+		方式二：set @@global | [session].系统变量名=值；
+*/
+
+/*
+用户变量的使用：
+	1.声明并赋值
+	set @变量名=值;
+	set @变量名:=值;
+	select @变量名:=值;
+	2.更新变量值--->直接使用1中的方法即可
+	select 值 into @变量名 form 表名; 
+	3.查看变量值
+	select @变量名
+*/
+
+/*
+局部变量的使用：只能说begin end中的第一句
+	1.声明
+	declare 变量名 类型
+	declare 变量名 类型 default 值；
+	2.赋值
+	set 变量名 = | := 值
+	select @变量名:=值
+	3.使用
+	select 变量名
+*/
+```
+
+**第十九部分：存储过程和函数**
+
+```sql
+/*
+存储过程：一组预先编译好的sql语句集合，类似于批处理
+好处：
+	1.提高代码重用性
+	2.简化操作
+	3.减少了编译次数和对数据库服务器的连接次数，提高了效率
 */
 ```
 

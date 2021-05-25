@@ -680,7 +680,7 @@ make proto------>xx.pb.go和xx.micro.go
 func main(){
     //初始化
     service:=mirco.NewService(
-        micro.Name("服务器名称"),
+        micro.Name("服务名称"),
         micro.Version("版本号"),
     )
     
@@ -706,6 +706,58 @@ func main(){
     )
     //另一种初始化
     service.Init()
+}
+```
+
+#### gin框架
+
+- 构建一个简单的web
+
+ ```go
+package main
+import "github.com/gin-gonic/gin"
+func main(){
+    //1.初始化web引擎(初始化路由)
+    router:=gin.Default()
+    //2.路由匹配
+    router.GET("/index",func(c *gin.Context){c.Writer.WriteString("hello")})
+    router.POST()
+    router.PUT()
+    router.DELETE()
+    //3.启动运行
+    router.Run(":8800")
+}
+ ```
+
+- 联合go-micro使用
+
+```go
+//1.将编译好的proto文件导入项目--->将pb包复制到新的项目
+package main
+import (
+	'github.com/gin-gonic/gin'
+    pb '项目名/proto/proto文件目录'
+    'github.com/micro/go-micro/client''
+    c2 'context'
+)
+
+func Handler(c *gin.Context){
+    //1.根据编译报的proto文件中的方法初始化客户端
+    client:=pb.New项目名Service("微服务名称",client.DefaultClient)
+    //2.调用远程服务
+    response,err:=client.Call(c2.TODO(),&pb.Request{name:"lili"})
+    //3.查看返回值
+    fmt.Println(response)
+    c.Writer.WriteString(response.Msg)
+}
+
+func main(){
+    //1.初始化路由
+    router:=gin.Default()
+    //2.路由匹配
+    router.GET('/',Handler)
+    //3.启动
+    router.Run("127.0.0.1:8080")
 }
 ```
 
