@@ -761,3 +761,68 @@ func main(){
 }
 ```
 
+- 联合g-micro和consul使用
+
+  - mdns服务发现：（组播）支持的服务必须是本地服务，局域网内的服务
+  
+  ```go
+//服务端
+  package main
+import (
+  	'github.com/micro/go-micro/registry/consul'
+      'github.com/micro/go-micro/registry'
+  )
+  
+  func main(){
+      //1.注册consul
+      consulReg:=consul.NewRegistry(func(o *registry.Options){
+          o.Addrs = []string{"127.0.0.1:8080"}
+      })
+      
+      service:=micro.NewService(
+          micro.Name("rpc"),
+          micro.Registry(consulReg),
+          micro.Version("last")
+      )
+      
+      service.Run()
+  }
+  ```
+  
+  ```go
+  //客户端
+  //1.将编译好的proto文件导入项目--->将pb包复制到新的项目
+  package main
+  import (
+  	'github.com/gin-gonic/gin'
+      pb '项目名/proto/proto文件目录'
+      c2 'context'
+  )
+  
+  func Handler(c *gin.Context){
+      cr:=consul.NewRegistry()
+      service:=micro.NewService(
+          micro.Registry(cr),
+      )
+      //1.根据编译报的proto文件中的方法初始化客户端
+      client:=pb.New项目名Service("微服务名称",service.Client())
+      //2.调用远程服务
+      response,err:=client.Call(c2.TODO(),&pb.Request{name:"lili"})
+      //3.查看返回值
+      fmt.Println(response)
+      c.Writer.WriteString(response.Msg)
+  }
+  
+  func main(){
+      //1.初始化路由
+      router:=gin.Default()
+      //2.路由匹配
+      router.GET('/',Handler)
+      //3.启动
+      router.Run("127.0.0.1:8080")
+  }
+  ```
+  
+  
+  
+  
