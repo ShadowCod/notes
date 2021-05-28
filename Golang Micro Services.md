@@ -823,6 +823,64 @@ import (
   }
   ```
   
+  ### 项目
+  
+  http5大错误类型：1xx(请求成功，需要继续发送请求)、2xx(请求被成功接收)、3xx(请求的资源指定到对应的URI上)、4xx(请求端错误)、5xx(服务端错误)
+  
+  ```go
+  //错误常量设置 micro/web/utils/error.go
+  package utils
+  //错误对应的编号
+  const (
+      ERCODE_OK	= "0",
+  )
+  
+  var recodeText = map[string]string{
+      ERCODE_OK:	"成功",
+  }
+  //获取map值的方法
+  func RecodeText(code string) string{
+      str,ok:=recodeText[code]
+      if ok{
+          return str
+      }
+      return recodeText[RECODE_UNKNOWERR]
+  }
+  
+  
+  ```
+  
+  ```go
+  //入口代码 micro/web/mian.go
+  package main
+  import (
+  	'github.com/gin-gonic/gin'
+      ''
+  )
+  
+  func main(){
+      //gin框架第一步：初始化路由
+      router:=gin.Default()
+      //gin框架第二步：路由匹配
+      router.GET("/api/v1.0/session",controller.GetSession)
+      //gin获取静态资源:第一个参数为访问路径，第二个参数为访问该路径时去那个目录中找静态资源
+      router.Static("/","view")
+      //gin框架第三步：启动运行绑定端口
+      router.Run(":8080")
+  }
+  ```
+  
+  ```go
+  // 控制函数模块 micro/web/controller/user.go
+  package controller
+  
+  import 'github.com/gin-gonic/gin'
+  
+  func GetSession(ctx *gin.Context){
+      
+  }
+  ```
+  
   
   
   
