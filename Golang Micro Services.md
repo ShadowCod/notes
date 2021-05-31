@@ -855,7 +855,7 @@ import (
   package main
   import (
   	'github.com/gin-gonic/gin'
-      ''
+      'micro/web/controller'
   )
   
   func main(){
@@ -863,6 +863,7 @@ import (
       router:=gin.Default()
       //gin框架第二步：路由匹配
       router.GET("/api/v1.0/session",controller.GetSession)
+      router.GET("/api/v1.0/imagecode/:uuid",controller.GetImageCD)
       //gin获取静态资源:第一个参数为访问路径，第二个参数为访问该路径时去那个目录中找静态资源
       router.Static("/","view")
       //gin框架第三步：启动运行绑定端口
@@ -875,9 +876,26 @@ import (
   package controller
   
   import 'github.com/gin-gonic/gin'
-  
+  //返回json格式的数据
   func GetSession(ctx *gin.Context){
-      
+      m:=make(map[string]string)
+      m["errno"]=utils.RECODE_SESSIONERR
+      m["errmsg"]=utils.RecodeText(utils.RECODE_SESSIONERR)
+      ctx.JSON(http.StatusOK,m)
+  }
+  
+  //获取路径中的参数
+  func GetImageCD(ctx *gin.Context){
+      uuid:=ctx.Param("uuid")
+      //生成图片验证码
+      cap:=captcha.New()
+      cap.SetFont("./conf/comic.ttf")
+      cap.SetSize(128,64)
+      cap.SetDisturbance(captcha.MEDIUM)
+      cap.SetFrontColor(color.RGBA{0,0,0,255})
+      cap.SetBkgColor(color.RGBA{100,0,255,255})
+      img,str:=cap.Create(4,captcha.NUM)
+      png.Encode(ctx.Writer,img)
   }
   ```
   

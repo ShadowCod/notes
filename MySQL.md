@@ -1175,7 +1175,36 @@ create view emp_v1 as select last_name,salary,email from emp where phone like '0
 	1.提高代码重用性
 	2.简化操作
 	3.减少了编译次数和对数据库服务器的连接次数，提高了效率
+
+创建语法：
+	create procedure 存储过程名(参数列表)
+	begin
+		存储过程体(一组合法的sql语句)
+	end
+参数：参数模式	参数名 参数类型
+eg:in stuname varchar(20)
+参数模式：
+in：该参数作为输入，调用方需要传入值
+out：该参数作为输出，这个参数作为返回值
+inout：即可作为输入又可作为输出
+
+注意：
+	1.存储过程体只有一局可以省略begin end
+	2.存储过程体中的每条sql语句结尾必须加分号，存储过程体结束可以使用delimiter重新设置
+	语法：delimiter 结束标记   delimiter $
+	
+调用语法：
+	call 存储过程名(实参列表)
 */
+--空参列表--
+#插入数据->创建
+delimiter $
+create procedure myp()
+begin
+	insert into admin(username,password) valurs("tom","111"),("jerry","222");
+end $
+#插入数据->调用
+call myp()$
 ```
 
 
