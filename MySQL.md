@@ -1195,6 +1195,12 @@ inout：即可作为输入又可作为输出
 	
 调用语法：
 	call 存储过程名(实参列表)
+	
+存储过程删除：（不支持一次性删多个）
+	drop procedure 存储过程名;
+	
+查看存储过程信息：
+	show create procedure 存储过程名;
 */
 --空参列表--
 #插入数据->创建
@@ -1205,6 +1211,46 @@ begin
 end $
 #插入数据->调用
 call myp()$
+--in模式的--
+#根据女名，查询对应男名的信息
+delimiter $
+create procedure myp1(in beautyName varchar(20))
+begin
+	select bo.* from boys bo right join beauty b on bo_id=b.boy_id where b.name=beautyName
+end $
+
+call myp1("1")$
+#传入多个参数的情况
+create procedure myp2(in username varchar(20),in password varchar(20))
+begin
+	declare result int default 0;#声明并初始化变量
+	select count(*) into result from admin where admin.username = username and admin.password = password;
+	select if(result>0,'成功','失败');
+end $
+
+--out模式--
+create procedure myp3(in bname varchar(20),out boyName varchar(20))
+begin
+	select bo.name into boyname from boys bo inner join beauty b on bo.id=b.b_id where b.name = bname;
+end $
+
+call myp3("11",@bname)$
+#多个返回值
+create procedure myp4(in bname varchar(20),out boyName varchar(20),out cp int)
+begin
+	select bo.name,bo.cp into boyname,cp from boys bo inner join beauty b on bo.id=b.b_id where b.name = bname;
+end $
+
+call myp4("11",@bname,@cp)$
+--inout模式--
+create procedure myp5(inout a int,inout b int)
+begin
+	set a=a*2;
+	set b=b*2;
+end $
+set @m=10$
+set @n=20$
+call myp5(@m,@n)$
 ```
 
 

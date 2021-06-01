@@ -875,7 +875,10 @@ import (
   // 控制函数模块 micro/web/controller/user.go
   package controller
   
-  import 'github.com/gin-gonic/gin'
+  import (
+  	'github.com/gin-gonic/gin'
+      getCaptcha 'micro/web/proto/getCaptcha'
+  )
   //返回json格式的数据
   func GetSession(ctx *gin.Context){
       m:=make(map[string]string)
@@ -887,18 +890,82 @@ import (
   //获取路径中的参数
   func GetImageCD(ctx *gin.Context){
       uuid:=ctx.Param("uuid")
-      //生成图片验证码
+      registry:=consul.NewRegistry()
+      service:=micro.NewService(
+          micro.Registry(registry)
+      )
+    client:=getCaptcha.NewGetCaptchaService("go.micro.srv.getCaptcha",service.Client())
+      rsp,err:=client.Call(context.TODO(),&getCaptcha.Request{})
+      if err!=nil{
+          return
+      }
+      var img capthcha.Image
+      json.Unmarshal(rsp.img,img)
+      png.Encode(ctx.Writer,img)
+  }
+  ```
+  
+  **将验证码功能集成为微服务**
+  
+  1. 在项目的service目录下生成微服务文件`micro new --type srv micro/service/getCaptcha`
+  2. 修改生成的proto文件micro/service/getCaptcha/proto
+  
+  ```protobuf
+  syntax = 'proto3';
+  package go.micro.srv.getCaptcha;
+  service GetCaptcha{
+  	rpc Call(Request) returns (Response){}
+  }
+  message Request{
+  }
+  message Reponse{
+  //使用切片存储图片信息，用json序列化
+  	bytes img = 1;
+  }
+  ```
+  
+  3. 编译proto文件`make proto`获得xx.mirco.go和xx.pb.go文件
+  4. 修改生成的main
+  
+  ```go
+  package main
+  
+  func main(){
+      registry:=consul.NewRegistry()
+      service:=micro.NewService(
+          micro.Address("127.0.0.1:8880"),//防止随机生成port
+          micro.Name("go.micro.srv.getCaptcha"),
+          micro.Registry(registry),
+          micro.Version("latest"),
+      )
+      getCaptcha.RegisterGetCaptchaHandler(service.Server(),new(handler.GetCaptcha))
+      if err := service.Run(); err != nil{
+          log.Fatal(err)
+      }
+  }
+  ```
+  
+  5. 修改handler/getCaptcha.go文件
+  
+  ```go
+  package handler
+  
+  import ...
+  
+  type GetCaptcha struct{}
+  
+  func (e *GetCaptcha)Call(ctx context.Context,req *getCaptcha.Requset,rsp *getCaptcha.Response) error{
       cap:=captcha.New()
       cap.SetFont("./conf/comic.ttf")
       cap.SetSize(128,64)
       cap.SetDisturbance(captcha.MEDIUM)
       cap.SetFrontColor(color.RGBA{0,0,0,255})
       cap.SetBkgColor(color.RGBA{100,0,255,255})
-      img,str:=cap.Create(4,captcha.NUM)
-      png.Encode(ctx.Writer,img)
+      img,_:=cap.Create(4,captcha.NUM)
+      imgjson,_:=json.Marshal(img)
+      rsp.img=imgjson
+      return nil
   }
   ```
-  
-  
   
   
