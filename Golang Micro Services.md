@@ -968,4 +968,24 @@ import (
   }
   ```
   
+  **go操作redis**
   
+  ```go
+  package main
+  import (
+  	 'github.com/gomodule/redigo/redis'
+  )
+  func main(){
+      //连接redis
+      conn,err:=redis.Dail("tcp","127.0.0.1")
+      defer conn.Close()
+      //操作数据
+      rep,err:=conn.Do("set","key","value")
+      //使用回调助手确认类型
+      s,err:= redis.String(rep,err)
+      fmt.Println(s,err)
+  }
+  ```
+  
+  
+
