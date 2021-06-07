@@ -955,13 +955,18 @@ import (
   type GetCaptcha struct{}
   
   func (e *GetCaptcha)Call(ctx context.Context,req *getCaptcha.Requset,rsp *getCaptcha.Response) error{
+      uuid:=ctx.Param("uuid")
       cap:=captcha.New()
       cap.SetFont("./conf/comic.ttf")
       cap.SetSize(128,64)
       cap.SetDisturbance(captcha.MEDIUM)
       cap.SetFrontColor(color.RGBA{0,0,0,255})
       cap.SetBkgColor(color.RGBA{100,0,255,255})
-      img,_:=cap.Create(4,captcha.NUM)
+      img,str:=cap.Create(4,captcha.NUM)
+      err:=SaveImgCode(str,uuid)
+      if err !=nil{
+          return err
+      }
       imgjson,_:=json.Marshal(img)
       rsp.img=imgjson
       return nil
@@ -977,13 +982,35 @@ import (
   )
   func main(){
       //连接redis
-      conn,err:=redis.Dail("tcp","127.0.0.1")
+      conn,err:=redis.Dail("tcp","127.0.0.1:6379")
       defer conn.Close()
       //操作数据
       rep,err:=conn.Do("set","key","value")
       //使用回调助手确认类型
       s,err:= redis.String(rep,err)
       fmt.Println(s,err)
+  }
+  ```
+  
+  **在微服务中添加redis** 
+  
+  ```go
+  // micro/service/getCaptcha/model
+  package model
+  
+  import 'github.com/gomodule/redigo/redis'
+  
+  //存储图片id 到redis数据库
+  func SaveImgCode(code,uuid string)error{
+      //连接redis
+      conn,err:=redis.Dail("tcp","127.0.0.1:6379")
+      if err !=nil{
+          return err
+      }
+      defer conn.Close()
+      //操作数据,有效时间5分钟
+      _,err=conn.Do("setex",uuid,60*5,code)
+      return err
   }
   ```
   
