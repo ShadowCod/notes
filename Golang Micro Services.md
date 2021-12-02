@@ -862,8 +862,16 @@ import (
       //gin框架第一步：初始化路由
       router:=gin.Default()
       //gin框架第二步：路由匹配
-      router.GET("/api/v1.0/session",controller.GetSession)
-      router.GET("/api/v1.0/imagecode/:uuid",controller.GetImageCD)
+      //router.GET("/api/v1.0/session",controller.GetSession)
+      //router.GET("/api/v1.0/imagecode/:uuid",controller.GetImageCD)
+      //router.GET("/api/v1.0/smscode/:phone",controller.GetSmscd)
+      //使用分组简写
+      r1:=router.Group("/api/v1.0")
+      {
+          r1.GET("/session",controller.GetSession)
+          r1.GET("/imagecode/:uuid",controller.GetImageCD)
+          r1.GET("/smscode/:phone",controller.GetSmscd)
+      }
       //gin获取静态资源:第一个参数为访问路径，第二个参数为访问该路径时去那个目录中找静态资源
       router.Static("/","view")
       //gin框架第三步：启动运行绑定端口
@@ -902,6 +910,13 @@ import (
       var img capthcha.Image
       json.Unmarshal(rsp.img,img)
       png.Encode(ctx.Writer,img)
+  }
+  
+  //短信验证
+  func GetSmscd(ctx *gin.Context){
+      phone:=ctx.Param("phone")
+      imgCode:=ctx.Query("text")
+      uuid:=ctx.Query("id")
   }
   ```
   
@@ -1012,6 +1027,12 @@ import (
       _,err=conn.Do("setex",uuid,60*5,code)
       return err
   }
+  ```
+  
+  **手机验证码**
+  
+  ```go
+  
   ```
   
   
